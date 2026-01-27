@@ -2,8 +2,11 @@
   "name": "onlishoping",
   "version": "0.0.0",
   "private": true,
+  "engines": {
+    "node": "20.x"
+  },
   "scripts": {
-    "build": "vue-tsc && vite build",
+    "build": "npm run type-check && vite build",
     "dev": "vite",
     "preview": "vite preview",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",

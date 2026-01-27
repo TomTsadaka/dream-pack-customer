@@ -127,6 +127,8 @@ export interface ShopFilters {
   colors?: string[];
   sizes?: string[];
   packSizes?: number[];
+  minPrice?: number;
+  maxPrice?: number;
   sort_by?: string;
   sort_order?: 'asc' | 'desc';
 }

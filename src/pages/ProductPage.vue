@@ -29,24 +29,24 @@
           
           <!-- Stock Badge -->
           <div
-            v-if="currentVariant?.stock <= 10"
+            v-if="currentVariant && currentVariant.stock <= 10"
             class="absolute top-2 right-2 bg-red-500 text-white px-3 py-1 rounded-lg text-sm font-semibold"
           >
-            Only {{ currentVariant.stock }} left
+            Only {{ currentVariant?.stock || 0 }} left
           </div>
         </div>
 
         <!-- Thumbnails -->
-        <div v-if="currentVariant?.images.length > 1" class="grid grid-cols-4 gap-2 mt-4">
+        <div v-if="currentVariant?.images && currentVariant.images.length > 1" class="grid grid-cols-4 gap-2 mt-4">
           <img
-            v-for="(image, index) in currentVariant.images"
+            v-for="(image, index) in (currentVariant?.images || [])"
             :key="index"
             :src="image"
             :alt="`Product image ${index + 1}`"
             @click="changeMainImage(image)"
             :class="[
               'w-full h-20 object-cover rounded cursor-pointer transition-all',
-              image === currentVariant.images[0] 
+              image === (currentVariant?.images?.[0]) 
                 ? 'ring-2 ring-offset-2 ring-primary-500' 
                 : 'hover:opacity-80'
             ]"
@@ -87,7 +87,7 @@
         <div v-if="productsStore.currentProduct" class="bg-white rounded-lg p-6">
           <VariantSelector
             :product="productsStore.currentProduct"
-            :initial-variant="currentVariant"
+            :model-value="currentVariant"
             @variant-changed="handleVariantChange"
           />
         </div>
@@ -180,11 +180,13 @@ const closeGallery = () => {
 // Cart functions
 const handleAddToCart = () => {
   if (currentVariant.value) {
-    cartStore.addToCart(productsStore.currentProduct, currentVariant.value);
+    if (productsStore.currentProduct) {
+      cartStore.addToCart(productsStore.currentProduct, currentVariant.value);
+    }
     
     const toastRef = document.querySelector('Toast') as any;
     if (toastRef) {
-      toastRef.success(`${productsStore.currentProduct.name} (${currentVariant.value.color} / ${currentVariant.value.size} / ${currentVariant.value.packSize} pcs) added to cart!`);
+      toastRef.success(`${productsStore.currentProduct?.name} (${currentVariant.value?.color} / ${currentVariant.value?.size} / ${currentVariant.value?.packSize} pcs) added to cart!`);
     }
   }
 };

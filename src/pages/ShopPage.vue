@@ -136,7 +136,7 @@
         <!-- Category Sidebar -->
         <div class="hidden lg:block w-64">
           <CategorySideNav
-            :categories="productsStore.categories"
+            :categories="productsStore.categories as any"
             @category-changed="handleCategoryChanged"
             @price-filter-changed="handlePriceFilterChanged"
           />
@@ -276,12 +276,12 @@ const handleAddToCart = (product: any, variant: any) => {
   cartStore.addToCart(product, variant);
 };
 
-const handleCategoryChanged = (category: string) => {
-  handleCategoryChange(category);
+const handleCategoryChanged = (category: any) => {
+  handleCategoryChange(category?.parent || '');
 };
 
-const handlePriceFilterChanged = (priceRange: { min: number; max: number }) => {
-  productsStore.setFilters({ minPrice: priceRange.min, maxPrice: priceRange.max });
+const handlePriceFilterChanged = (priceRange: { min: number | null; max: number | null;}) => {
+  productsStore.setFilters({ minPrice: priceRange.min || undefined, maxPrice: priceRange.max || undefined });
   productsStore.fetchProducts(1);
 };
 

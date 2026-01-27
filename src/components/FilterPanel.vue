@@ -99,7 +99,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 interface Props {
   availableColors: string[];

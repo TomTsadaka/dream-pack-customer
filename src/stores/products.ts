@@ -83,7 +83,7 @@ export const useProductsStore = defineStore('products', {
       if (state.filters.colors && state.filters.colors.length > 0) {
         filtered = filtered.filter(product => 
           state.filters.colors!.some(color => 
-            product.options.colors?.some(opt => 
+            product.options?.colors?.some(opt => 
               typeof opt === 'string' ? opt === color : opt.name === color
             )
           )
@@ -93,7 +93,7 @@ export const useProductsStore = defineStore('products', {
       if (state.filters.sizes && state.filters.sizes.length > 0) {
         filtered = filtered.filter(product => 
           state.filters.sizes!.some(size => 
-            product.options.sizes?.some(opt => 
+            product.options?.sizes?.some(opt => 
               typeof opt === 'string' ? opt === size : opt.value === size
             )
           )

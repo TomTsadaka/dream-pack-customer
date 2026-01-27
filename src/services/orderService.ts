@@ -51,7 +51,14 @@ export const orderService = {
         total: orderData.total,
         status: 'pending',
         shipping_address: orderData.shipping_address,
-        items: orderData.items,
+        items: orderData.items.map(item => ({
+          product_id: item.product_id,
+          variant_id: 'default-variant',
+          product_name: item.product_name,
+          variant_name: 'Default',
+          quantity: item.quantity,
+          price: item.price
+        })),
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       };

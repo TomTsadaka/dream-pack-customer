@@ -143,7 +143,7 @@
                   <span class="font-medium">{{ item.quantity }} × {{ item.product.name }}</span>
                 </div>
                 <span>
-                  ${{ ((item.product.salePrice || item.product.price) * item.quantity).toFixed(2) }}
+                  ${{ ((item.product?.salePrice || item.product?.price || 0) * item.quantity).toFixed(2) }}
                 </span>
               </div>
             </div>

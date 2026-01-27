@@ -25,7 +25,7 @@
           v-for="category in categories"
           :key="category.id"
           class="flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:bg-blue-50 hover:border-blue-300 cursor-pointer transition-colors"
-          :class="{ 'bg-blue-50 border-blue-300': selectedCategory === category.parent }"
+          :class="{ 'bg-blue-50 border-blue-300': selectedCategory?.parent === category.parent }"
         >
           <input
             type="radio"
@@ -161,7 +161,7 @@ const handleCategoryChange = (event: Event) => {
   
   // Update URL
   updateQuery();
-  emit('categoryChanged', category);
+  emit('categoryChanged', category || null);
 };
 
 const handlePriceFilterChange = () => {
