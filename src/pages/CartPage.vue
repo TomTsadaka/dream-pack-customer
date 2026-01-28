@@ -26,10 +26,11 @@
           <div class="p-6">
             <div v-for="item in cartStore.items" :key="item.product.id" class="border-b last:border-b-0 pb-6 mb-6 last:pb-0 last:mb-0">
               <div class="flex gap-4">
-                <!-- Product Image -->
-                 <img
-                    :src="item.variant.images[0]"
+                 <!-- Product Image -->
+                  <img
+                    :src="resolveVariantThumbnail(item.product, item.variant)"
                     :alt="item.product.name"
+                    @error="handleImageError"
                     class="w-24 h-24 object-cover rounded-lg"
                   />
 
@@ -47,7 +48,7 @@
                        <p class="text-xs text-gray-600">SKU: {{ item.variant.sku }}</p>
                      </div>
                     
-                    <p class="text-gray-600 text-sm mb-4">{{ item.product.category }}</p>
+                    <!-- <p class="text-gray-600 text-sm mb-4">{{ item.product.category }}</p> -->
 
                     <!-- Price and Quantity -->
                     <div class="flex justify-between items-center mb-4">
@@ -107,16 +108,16 @@
           <div class="space-y-2 mb-4">
             <div class="flex justify-between">
               <span class="text-gray-600">Subtotal</span>
-              <span>₱{{ cartStore.subtotal.toFixed(2) }}</span>
+              <span>{{ formatMoney(cartStore.subtotal) }}</span>
             </div>
             <div class="flex justify-between">
               <span class="text-gray-600">Shipping</span>
-              <span>₱10.00</span>
+              <span>{{ formatMoney(10) }}</span>
             </div>
             <div class="border-t pt-2">
               <div class="flex justify-between font-semibold text-lg">
                 <span>Total</span>
-                <span>₱{{ cartStore.total.toFixed(2) }}</span>
+                <span>{{ formatMoney(cartStore.total) }}</span>
               </div>
             </div>
           </div>
@@ -150,6 +151,7 @@ import { useRouter } from 'vue-router';
 import { useToastStore } from '@/stores/toast';
 import { useSettingsStore } from '@/stores/settings';
 import { formatMoney as formatMoneyUtil } from '@/utils/money';
+import { resolveVariantThumbnail, handleImageError } from '@/utils/image';
 
 
 const router = useRouter();

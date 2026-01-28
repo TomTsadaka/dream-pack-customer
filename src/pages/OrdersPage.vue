@@ -41,7 +41,7 @@
                       {{ formatStatus(order.status) }}
                     </span>
                     <p class="text-lg font-semibold mt-1">
-                      ${{ order.total.toFixed(2) }}
+                      {{ formatMoney(order.total) }}
                     </p>
                   </div>
                 </div>
@@ -50,20 +50,29 @@
               <!-- Order Items -->
               <div class="p-6">
                 <div class="space-y-3 mb-4">
-                  <div
-                    v-for="item in order.items"
-                    :key="item.product_id"
-                    class="flex justify-between items-center"
-                  >
-                    <div class="flex-1">
-                      <h4 class="font-medium">{{ item.product_name }}</h4>
-                      <p class="text-sm text-gray-600">Quantity: {{ item.quantity }}</p>
-                    </div>
-                    <div class="text-right">
-                      <p class="font-medium">${{ (item.price * item.quantity).toFixed(2) }}</p>
-                      <p class="text-sm text-gray-600">${{ item.price.toFixed(2) }} each</p>
-                    </div>
-                  </div>
+                   <div
+                     v-for="item in order.items"
+                     :key="item.product_id"
+                     class="flex gap-4 items-center"
+                   >
+                     <!-- Product Image -->
+                     <img
+                       :src="getOrderItemThumbnail(item)"
+                       :alt="item.product_name"
+                       @error="handleImageError"
+                       class="w-16 h-16 object-cover rounded-lg flex-shrink-0"
+                     />
+                     
+                     <div class="flex-1">
+                       <h4 class="font-medium">{{ item.product_name }}</h4>
+                       <p class="text-sm text-gray-600">Quantity: {{ item.quantity }}</p>
+                       <p v-if="item.variant_name" class="text-xs text-gray-500">{{ item.variant_name }}</p>
+                     </div>
+                     <div class="text-right">
+                       <p class="font-medium">{{ formatMoney(item.price * item.quantity) }}</p>
+                       <p class="text-sm text-gray-600">{{ formatMoney(item.price) }} each</p>
+                     </div>
+                   </div>
                 </div>
 
                 <!-- Shipping Address -->
@@ -129,10 +138,21 @@ import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { useOrdersStore } from '@/stores/orders';
+import { useProductsStore } from '@/stores/products';
+import { useSettingsStore } from '@/stores/settings';
+import { formatMoney as formatMoneyUtil } from '@/utils/money';
+import { resolveVariantThumbnail, handleImageError } from '@/utils/image';
 
 const router = useRouter();
 const authStore = useAuthStore();
 const ordersStore = useOrdersStore();
+const productsStore = useProductsStore();
+const settingsStore = useSettingsStore();
+
+// Format money using utility
+const formatMoney = (amount: number): string => {
+  return formatMoneyUtil(amount, settingsStore.currency, settingsStore.locale, settingsStore.rates);
+};
 
 const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString('en-US', {
@@ -165,6 +185,18 @@ const getStatusClass = (status: string) => {
   }
 };
 
+const getOrderItemThumbnail = (orderItem: any) => {
+  // First try to find the product by ID
+  const product = productsStore.products.find(p => p.id === orderItem.product_id);
+  
+  if (product) {
+    return resolveVariantThumbnail(product, undefined, orderItem.variant_id);
+  }
+  
+  // Fallback to placeholder if product not found
+  return '/images/placeholder-product.svg';
+};
+
 const viewOrderDetails = (orderId: number) => {
   // In a real app, this would navigate to order details page
   // For now, we'll just show an alert
@@ -173,9 +205,12 @@ const viewOrderDetails = (orderId: number) => {
 
 onMounted(async () => {
   await authStore.init();
-  
+   
   if (authStore.isLoggedIn) {
-    await ordersStore.fetchOrders();
-  }
-});
+     await Promise.all([
+       ordersStore.fetchOrders(),
+       productsStore.fetchProducts()
+     ]);
+   }
+ });
 </script>

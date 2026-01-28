@@ -72,6 +72,11 @@
         <span class="text-xs text-gray-600">{{ product.soldCount }} sold</span>
       </div>
 
+      <!-- Stock Quantity -->
+      <div class="flex items-center gap-2 mb-2">
+        <span class="text-xs text-green-600 font-medium">In stock: {{ totalStock }}</span>
+      </div>
+
       <!-- Price -->
       <div class="flex items-center gap-2 mb-3">
         <div v-if="hasPriceRange">
@@ -106,7 +111,7 @@
         @click="openQuickView"
         class="w-full bg-orange-500 text-white px-3 py-2 rounded text-sm font-medium hover:bg-orange-600 transition-colors"
       >
-         Quick View
+         Add to Cart
       </button>
     </div>
 
@@ -254,6 +259,12 @@ const maxPrice = computed(() => {
 
 const hasPriceRange = computed(() => {
   return minPrice.value !== maxPrice.value && minPrice.value > 0 && maxPrice.value > 0;
+});
+
+// Calculate total stock across all variants
+const totalStock = computed(() => {
+  if (!props.product.variants || props.product.variants.length === 0) return 0;
+  return props.product.variants.reduce((total, variant) => total + (variant.stock || 0), 0);
 });
 
 // Quick View modal handlers

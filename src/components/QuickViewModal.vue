@@ -190,13 +190,13 @@
                 <span v-else>Add to Cart</span>
               </button>
               
-              <RouterLink
+              <!-- <RouterLink
                 :to="`/product/${product.id}`"
                 @click="closeModal"
                 class="block w-full text-center px-6 py-3 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
               >
                 View Full Details
-              </RouterLink>
+              </RouterLink> -->
             </div>
           </div>
         </div>
@@ -211,6 +211,7 @@ import { useRouter } from 'vue-router';
 import { useCartStore } from '@/stores/cart';
 import { useToastStore } from '@/stores/toast';
 import { useSettingsStore } from '@/stores/settings';
+import { formatMoney as formatMoneyUtil } from '@/utils/money';
 
 import type { Product, ProductVariant, ProductAttribute } from '@/types';
 
@@ -323,13 +324,9 @@ const createFallbackVariant = (): ProductVariant => ({
   images: ['https://picsum.photos/seed/placeholder/400/400.jpg']
 });
 
-// Format money helper
-const formatMoney = (amount: number | undefined | null): string => {
-  const num = Number(amount);
-  if (!Number.isFinite(num) || num < 0) {
-    return '₱0.00';
-  }
-  return `₱${num.toFixed(2)}`;
+// Format money helper using the utility
+const formatMoney = (amountILS: number): string => {
+  return formatMoneyUtil(amountILS, settingsStore.currency, settingsStore.locale, settingsStore.rates);
 };
 
 // Availability checks

@@ -43,7 +43,7 @@ export function formatMoney(
   const formatter = new Intl.NumberFormat(numberLocale, {
     style: 'currency',
     currency: getCurrencyCode(currency),
-    minimumFractionDigits: 0,
+    minimumFractionDigits: 2,
     maximumFractionDigits: 2
   });
   
