@@ -40,7 +40,7 @@
                 v-if="selectedVariant.stock <= 5"
                 class="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-semibold"
               >
-                Only {{ selectedVariant.stock }} left
+                 Only {{ selectedVariant.stock }} left
               </div>
             </div>
 
@@ -89,6 +89,11 @@
                 </div>
                 <span>•</span>
                 <span>{{ product.soldCount }} sold</span>
+              </div>
+              
+              <!-- Product Description -->
+              <div class="mt-3 text-sm text-gray-600 leading-relaxed">
+                {{ product.baseDescription[settingsStore.locale] || product.baseDescription.en }}
               </div>
             </div>
 
@@ -205,6 +210,8 @@ import { ref, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useCartStore } from '@/stores/cart';
 import { useToastStore } from '@/stores/toast';
+import { useSettingsStore } from '@/stores/settings';
+
 import type { Product, ProductVariant, ProductAttribute } from '@/types';
 
 interface Props {
@@ -221,6 +228,8 @@ const emit = defineEmits<{
 const router = useRouter();
 const cartStore = useCartStore();
 const toastStore = useToastStore();
+const settingsStore = useSettingsStore();
+
 
 // State
 const currentImageIndex = ref(0);

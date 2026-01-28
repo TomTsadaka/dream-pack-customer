@@ -73,7 +73,7 @@
               @click="handleMobileCategorySelect('')"
               class="block w-full text-left px-4 py-3 hover:bg-gray-50 border-b border-gray-100"
             >
-              All Categories
+All Categories
             </button>
             <button
               v-for="category in productsStore.categories"
@@ -199,10 +199,12 @@ import ProductCard from '@/components/ProductCard.vue';
 import CategorySideNav from '@/components/CategorySideNav.vue';
 import Pagination from '@/components/Pagination.vue';
 
+
 const route = useRoute();
 const router = useRouter();
 const productsStore = useProductsStore();
 const cartStore = useCartStore();
+
 
 const selectedCategory = ref('');
 const showMobileCategories = ref(false);

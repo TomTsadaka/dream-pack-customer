@@ -21,7 +21,7 @@
               <span class="text-xl font-bold">Dream Pack</span>
             </div>
             <p class="text-gray-400">
-              Your trusted packaging solutions provider for quality materials at great prices.
+              {{ t('footer.about') }}
             </p>
           </div>
 
@@ -67,7 +67,7 @@
         </div>
 
         <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
-          <p>&copy; 2026 Dream Pack. All rights reserved.</p>
+          <p>&copy; 2026 Dream Pack. {{ t('footer.rights') }}</p>
         </div>
       </div>
     </footer>
@@ -81,12 +81,16 @@ import Toast from '@/components/Toast.vue';
 import { useAuthStore } from '@/stores/auth';
 import { useCartStore } from '@/stores/cart';
 import { useToastStore } from '@/stores/toast';
+import { useSettingsStore } from '@/stores/settings';
+import { useI18n } from 'vue-i18n';
 
 const toastRef = ref<InstanceType<typeof Toast> | null>(null);
 
 // Initialize stores
 const authStore = useAuthStore();
 const cartStore = useCartStore();
+const settingsStore = useSettingsStore();
+const { t } = useI18n();
 
 onMounted(async () => {
   // Initialize auth state
@@ -124,6 +128,8 @@ onMounted(async () => {
   opacity: 0;
   transform: translateY(-20px);
 }
+
+
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {

@@ -55,7 +55,10 @@ export interface Product {
   id: number;
   name: string;
   slug?: string;
-  baseDescription: string;
+  baseDescription: {
+    en: string;
+    he: string;
+  };
   category: ProductCategory;
   rating: number;
   soldCount: number;

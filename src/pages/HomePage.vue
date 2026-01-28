@@ -18,7 +18,7 @@
 
     <!-- Categories -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <h2 class="text-2xl font-bold mb-8 text-center">Shop by Category</h2>
+      <h2 class="text-2xl font-bold mb-8 text-center">{{ t('home.shopByCategory') }}</h2>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
         <router-link
           v-for="category in categories"
@@ -37,7 +37,7 @@
 
     <!-- Featured Products -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <h2 class="text-2xl font-bold mb-8">Featured Products</h2>
+      <h2 class="text-2xl font-bold mb-8">{{ t('home.featuredProducts') }}</h2>
       <div v-if="productsStore.loading" class="text-center py-8">
         <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
       </div>
@@ -84,11 +84,13 @@ import { useCartStore } from '@/stores/cart';
 import { useRouter } from 'vue-router';
 import ProductCard from '@/components/ProductCard.vue';
 import { useToastStore } from '@/stores/toast';
+import { useI18n } from 'vue-i18n';
 
 const router = useRouter();
 const productsStore = useProductsStore();
 const cartStore = useCartStore();
 const toastStore = useToastStore();
+const { t } = useI18n();
 
 const categories = [
   { id: 1, name: 'Pouches and Bags', slug: 'pouches-and-bags', product_count: 8 },

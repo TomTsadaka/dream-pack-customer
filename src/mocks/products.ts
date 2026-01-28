@@ -105,7 +105,7 @@ const createProduct = (
   tagSlug: string,
   parentCategory: ProductCategory,
   tag: string,
-  baseDescription: string,
+  baseDescription: { en: string; he: string },
   rating: number,
   soldCount: number
 ): Product => {
@@ -217,7 +217,10 @@ export const mockProducts: Product[] = [
     'bubble-wrap',
     PACKAGING_CATEGORIES[0],
     'Bubble Wrap',
-    'Premium bubble wrap rolls for protecting fragile items during shipping and storage. Available in various sizes and colors for all your packaging needs.',
+    {
+      en: 'Premium bubble wrap rolls for protecting fragile items during shipping and storage. Available in various sizes and colors for all your packaging needs.',
+      he: 'גלילי ניילון בועות עמידים למשלוח בטוח. זמינים במגוון גדלים וצבעים לכל צרכי האריזה שלך.'
+    },
     4.5,
     234
   ),
@@ -227,7 +230,10 @@ export const mockProducts: Product[] = [
     'stretch-film',
     PACKAGING_CATEGORIES[0],
     'Stretch Film',
-    'High-clarity stretch film for pallet wrapping and securing loads. Excellent elasticity and puncture resistance for professional shipping.',
+    {
+      en: 'High-clarity stretch film for pallet wrapping and securing loads. Excellent elasticity and puncture resistance for professional shipping.',
+      he: 'סרט צלוח לעיטוף פלטות למטענת ואבטחת מטענים. גמישות והתנגדות מצוינת למשלוח מקצועי.'
+    },
     4.6,
     189
   ),
@@ -237,7 +243,10 @@ export const mockProducts: Product[] = [
     'poly-mailers',
     PACKAGING_CATEGORIES[0],
     'Poly Mailers',
-    'Durable polyethylene mailers with self-sealing adhesive closure. Perfect for shipping documents, electronics, and small items.',
+    {
+      en: 'Durable polyethylene mailers with self-sealing adhesive closure. Perfect for shipping documents, electronics, and small items.',
+      he: 'שקיות פוליאתילן עם אטימה עצמית. מושלמות למשלוח מסמכים, אלקטרוניקה ופריטים קטנים.'
+    },
     4.3,
     156
   ),
@@ -247,7 +256,10 @@ export const mockProducts: Product[] = [
     'foam-sheets',
     PACKAGING_CATEGORIES[0],
     'Foam Sheets',
-    'Lightweight foam sheets for cushioning and protecting delicate items. Easy to cut and customize for specific packaging requirements.',
+    {
+      en: 'Lightweight foam sheets for cushioning and protecting delicate items. Easy to cut and customize for specific packaging requirements.',
+      he: 'גילי קצפה קלים לריכוך והגנה פריטים עדינים. קל לחיתה והתאמה לדרישות אריזה.'
+    },
     3.9,
     98
   ),
@@ -259,7 +271,10 @@ export const mockProducts: Product[] = [
     'corrugated-boxes',
     PACKAGING_CATEGORIES[1],
     'Corrugated Boxes',
-    'Strong corrugated cardboard boxes for shipping and storage. Various sizes available with different wall thicknesses.',
+    {
+      en: 'Strong corrugated cardboard boxes for shipping and storage. Various sizes available with different wall thicknesses.',
+      he: 'קופסות קרטון מגוון למשלוח ואחסון. גדלים נוספים בגדלים ועובי קירות שונות.'
+    },
     4.7,
     312
   ),
@@ -269,7 +284,10 @@ export const mockProducts: Product[] = [
     'mailer-boxes',
     PACKAGING_CATEGORIES[1],
     'Mailer Boxes',
-    'Rigid mailer boxes with integrated closure mechanisms. Ideal for shipping small to medium-sized items securely.',
+    {
+      en: 'Rigid mailer boxes with integrated closure mechanisms. Ideal for shipping small to medium-sized items securely.',
+      he: 'קופסות דואר מקנגים משולבים. אידאלי למשלוח פריטים קטנים עד בינוניים.'
+    },
     4.4,
     267
   ),
@@ -279,21 +297,27 @@ export const mockProducts: Product[] = [
     'folding-cartons',
     PACKAGING_CATEGORIES[1],
     'Folding Cartons',
-    'Space-saving folding cartons that assemble quickly. Perfect for retail packaging and temporary storage solutions.',
+    {
+      en: 'Space-saving folding cartons that assemble quickly. Perfect for retail packaging and temporary storage solutions.',
+      he: 'קופסות מתקפלות שחוסכות במהירות. מושלמות לאריזה קמורה ולאחסון זמני.'
+    },
     4.2,
     145
   ),
-  createProduct(
+createProduct(
     8,
     'Plastic Containers',
     'plastic-containers',
     PACKAGING_CATEGORIES[1],
     'Plastic Containers',
-    'Reusable plastic containers with secure lids. Various sizes for food storage, organization, and shipping.',
+    {
+      en: 'Reusable plastic containers with secure lids. Various sizes for food storage, organization, and shipping.',
+      he: 'מכלי פלסטיק עם מכסות מאובטחות. גדלים נוספים לאחסון מזון, ארגוניזציה ומשלוח.'
+    },
     4.8,
     201
   ),
-
+  
   // Bottles & Containers Products
   createProduct(
     9,
@@ -301,7 +325,10 @@ export const mockProducts: Product[] = [
     'pet-bottles',
     PACKAGING_CATEGORIES[2],
     'PET Bottles',
-    'Clear PET bottles with secure caps. Perfect for beverages, liquids, and bulk storage solutions.',
+    {
+      en: 'Clear PET bottles with secure caps. Perfect for beverages, liquids, and bulk storage solutions.',
+      he: 'בקבוקות PET שקופות עם מכסות מאובטחות. מושלמות למשקאים, נוזידים ופתרוני לאחסון.'
+    },
     4.5,
     423
   ),
@@ -311,7 +338,10 @@ export const mockProducts: Product[] = [
     'spray-bottles',
     PACKAGING_CATEGORIES[2],
     'Spray Bottles',
-    'Adjustable spray bottles with fine mist nozzles. Ideal for cleaning solutions, cosmetics, and industrial applications.',
+    {
+      en: 'Adjustable spray bottles with fine mist nozzles. Ideal for cleaning solutions, cosmetics, and industrial applications.',
+      he: 'בקבוקות ספרי ניתנות עם מזרקי עדק. אידאלי לפתרוני ניקוי, קוסמטיקה ויישומים תעשייתיים.'
+    },
     3.8,
     167
   ),
@@ -321,19 +351,25 @@ export const mockProducts: Product[] = [
     'glass-jars',
     PACKAGING_CATEGORIES[2],
     'Glass Jars',
-    'Clear glass jars with airtight lids. Perfect for food storage, preserves, and premium products.',
+    {
+      en: 'Clear glass jars with airtight lids. Perfect for food storage, preserves, and premium products.',
+      he: 'צנצצות זכוכים עם מכסות אטום לאוויר. מושלמות לאחסון מזון, שימורים ומוצרים פרימיום.'
+    },
     4.1,
     289
   ),
 
   // Protective Packaging Products
-  createProduct(
+createProduct(
     12,
     'Air Pillows',
     'air-pillows',
     PACKAGING_CATEGORIES[3],
     'Air Pillows',
-    'Inflatable air pillows for filling void spaces and cushioning items in packages. Lightweight and easy to use.',
+    {
+      en: 'Inflatable air pillows for filling void spaces and cushioning items in packages. Lightweight and easy to use.',
+      he: 'כריסי אוויר מילאוים למילוי רווקים וחיצון פריטים בחבילות. קלים וקל לשימוש.'
+    },
     3.6,
     134
   ),
@@ -343,7 +379,10 @@ export const mockProducts: Product[] = [
     'foam-edge-protectors',
     PACKAGING_CATEGORIES[3],
     'Foam Edge Protectors',
-    'Adhesive foam edge protectors for furniture corners and edges. Prevents damage during shipping and handling.',
+    {
+      en: 'Adhesive foam edge protectors for furniture corners and edges. Prevents damage during shipping and handling.',
+      he: 'מדביקי קצפה לריבוע ריהובות וקצות. מונעט פגיעה נזק במשלוח ובטיפול.'
+    },
     4.0,
     87
   ),
@@ -353,11 +392,14 @@ export const mockProducts: Product[] = [
     'bubble-cushioning',
     PACKAGING_CATEGORIES[3],
     'Bubble Cushioning',
-    'Pre-formed bubble cushioning wraps for protecting edges and corners. Convenient peel-and-stick application.',
+    {
+      en: 'Pre-formed bubble cushioning wraps for protecting edges and corners. Convenient peel-and-stick application.',
+      he: 'עיטופי בועות בועות עם כריסי בועות להגנה ריבוע וקצות. יישומ להדבקה והידבקה.'
+    },
     4.2,
     112
   ),
-
+  
   // Shelf-ready & Retail Packaging Products
   createProduct(
     15,
@@ -365,7 +407,10 @@ export const mockProducts: Product[] = [
     'display-trays',
     PACKAGING_CATEGORIES[4],
     'Display Trays',
-    'Clear plastic display trays for retail presentation. Stackable design with secure fitting.',
+    {
+      en: 'Clear plastic display trays for retail presentation. Stackable design with secure fitting.',
+      he: 'מגשי פלסטיק לתצוגה בקמע. עיצוב מתכונן עם התאמה בטוחה.'
+    },
     4.3,
     178
   ),
@@ -375,7 +420,10 @@ export const mockProducts: Product[] = [
     'counter-display-boxes',
     PACKAGING_CATEGORIES[4],
     'Counter Display Boxes',
-    'Cardboard counter display boxes with custom printing options. Perfect for point-of-sale displays.',
+    {
+      en: 'Cardboard counter display boxes with custom printing options. Perfect for point-of-sale displays.',
+      he: 'קופסת קרטון תצוגה לנקודת קמע עם אפשרויות הדפסה. מושלם לתצוגות נקודת מכירה.'
+    },
     4.6,
     156
   ),
@@ -385,7 +433,10 @@ export const mockProducts: Product[] = [
     'retail-display-shippers',
     PACKAGING_CATEGORIES[4],
     'Retail Display Shippers',
-    'All-in-one retail display shipping boxes with integrated inserts. Professional presentation for e-commerce.',
+    {
+      en: 'All-in-one retail display shipping boxes with integrated inserts. Professional presentation for e-commerce.',
+      he: 'קופסת תצוגה קמעית למכירה עם הדבקות משולבות. מצגת מקצועית למסחר אלקטרוני.'
+    },
     4.8,
     203
   ),
@@ -395,7 +446,10 @@ export const mockProducts: Product[] = [
     'shelf-ready-cartons',
     PACKAGING_CATEGORIES[4],
     'Shelf-Ready Cartons',
-    'Pre-assembled cartons designed for retail shelving. Quick setup and professional appearance.',
+    {
+      en: 'Pre-assembled cartons designed for retail shelving. Quick setup and professional appearance.',
+      he: 'קופסות מורכבות מעוצבות למדפים במכירה. התקנה מהירה ומראה מקצועית.'
+    },
     4.4,
     124
   )

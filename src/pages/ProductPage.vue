@@ -68,7 +68,7 @@
 
         <!-- Description -->
         <div class="mb-8">
-          <p class="text-gray-700">{{ productsStore.currentProduct.baseDescription }}</p>
+          <p class="text-gray-700">{{ productsStore.currentProduct.baseDescription[settingsStore.locale] || productsStore.currentProduct.baseDescription.en }}</p>
         </div>
 
         <!-- Price -->
@@ -120,7 +120,11 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useProductsStore } from '@/stores/products';
 import { useCartStore } from '@/stores/cart';
+import { useToastStore } from '@/stores/toast';
+import ProductCard from '@/components/ProductCard.vue';
 import VariantSelector from '@/components/VariantSelector.vue';
+import { useSettingsStore } from '@/stores/settings';
+import { useI18n } from 'vue-i18n';
 import ProductGalleryModal from '@/components/ProductGalleryModal.vue';
 import BackButton from '@/components/BackButton.vue';
 import type { ProductVariant } from '@/types';
@@ -130,6 +134,8 @@ const route = useRoute();
 const router = useRouter();
 const productsStore = useProductsStore();
 const cartStore = useCartStore();
+const settingsStore = useSettingsStore();
+const { t } = useI18n();
 
 const showGallery = ref(false);
 const galleryImages = ref<string[]>([]);

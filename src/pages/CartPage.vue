@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-gray-50">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 class="text-3xl font-bold mb-8">Shopping Cart</h1>
+       <h1 class="text-3xl font-bold mb-8">Shopping Cart</h1>
 
       <!-- Empty Cart -->
       <div v-if="cartStore.items.length === 0" class="text-center py-12">
@@ -10,8 +10,8 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
           </svg>
         </div>
-        <h2 class="text-xl font-semibold text-gray-600 mb-2">Your cart is empty</h2>
-        <p class="text-gray-500 mb-6">Looks like you haven't added any products yet</p>
+         <h2 class="text-xl font-semibold text-gray-600 mb-2">Your cart is empty</h2>
+         <p class="text-gray-500 mb-6">Looks like you haven't added any products yet</p>
         <router-link
           to="/shop"
           class="bg-primary-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary-700 transition-colors inline-block"
@@ -74,13 +74,13 @@
                       </div>
 
                        <div class="text-right">
-                         <div v-if="item.variant.salePrice && item.variant.salePrice < item.variant.price">
-                           <span class="text-lg font-semibold">₱{{ (item.variant.salePrice * item.quantity).toFixed(2) }}</span>
-                           <span class="text-sm text-gray-400 line-through block">₱{{ (item.variant.price * item.quantity).toFixed(2) }}</span>
-                         </div>
-                         <div v-else>
-                           <span class="text-lg font-semibold">₱{{ (item.variant.price * item.quantity).toFixed(2) }}</span>
-                         </div>
+<div v-if="item.variant.salePrice && item.variant.salePrice < item.variant.price">
+                            <span class="text-lg font-semibold">{{ formatMoney(item.variant.salePrice * item.quantity) }}</span>
+                            <span class="text-sm text-gray-400 line-through block">{{ formatMoney(item.variant.price * item.quantity) }}</span>
+                          </div>
+                          <div v-else>
+                            <span class="text-lg font-semibold">{{ formatMoney(item.variant.price * item.quantity) }}</span>
+                          </div>
                        </div>
                     </div>
                      <!-- Remove Button -->
@@ -148,11 +148,21 @@ import { useCartStore } from '@/stores/cart';
 import { useAuthStore } from '@/stores/auth';
 import { useRouter } from 'vue-router';
 import { useToastStore } from '@/stores/toast';
+import { useSettingsStore } from '@/stores/settings';
+import { formatMoney as formatMoneyUtil } from '@/utils/money';
+
 
 const router = useRouter();
 const cartStore = useCartStore();
 const authStore = useAuthStore();
 const toastStore = useToastStore();
+const settingsStore = useSettingsStore();
+
+
+// Price formatting using currency utilities
+const formatMoney = (amountILS: number): string => {
+  return formatMoneyUtil(amountILS, settingsStore.currency, settingsStore.locale, settingsStore.rates);
+};
 
 const handleRemoveItem = (productId: number, variantId: string) => {
   cartStore.removeFromCart(productId, variantId);

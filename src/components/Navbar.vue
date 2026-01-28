@@ -32,6 +32,36 @@
 
         <!-- Navigation Items -->
         <div class="flex items-center space-x-2 md:space-x-4">
+          <!-- Language Switcher -->
+          <div class="relative">
+            <button
+              @click="showLanguageMenu = !showLanguageMenu"
+              class="flex items-center space-x-1 px-3 py-2 text-sm font-medium text-gray-700 hover:text-primary-600 border border-gray-300 rounded-lg hover:border-primary-500 transition-colors"
+            >
+              <span class="inline-flex items-center gap-2">
+                <img :src="currentLanguage.flagSrc" class="w-4 h-4 inline-block" :alt="currentLanguage.label" />
+                <span>{{ currentLanguage.label }}</span>
+              </span>
+              <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            
+            <!-- Language Dropdown -->
+            <div v-if="showLanguageMenu" class="absolute right-0 mt-2 w-36 bg-white rounded-lg shadow-lg py-1 border border-gray-200 z-50">
+              <button
+                v-for="language in languageOptions"
+                :key="language.code"
+                @click="selectLanguage(language.code)"
+                class="inline-flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                :class="{ 'bg-primary-50 text-primary-600': settingsStore.locale === language.code }"
+              >
+                   <img :src="language.flagSrc" class="w-4 h-4 inline-block" :alt="language.label" />
+                   <span>{{ language.label }}</span>
+              </button>
+            </div>
+          </div>
+
           <!-- Cart -->
           <router-link to="/cart" class="relative p-2 text-gray-600 hover:text-primary-600 transition-colors">
             <svg class="h-5 w-5 md:h-6 md:w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -121,19 +151,48 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { useCartStore } from '@/stores/cart';
 import { useProductsStore } from '@/stores/products';
+import { useSettingsStore } from '@/stores/settings';
+import US_FLAG from '@/assets/flags/us.svg';
+import IL_FLAG from '@/assets/flags/il.svg';
 
 const router = useRouter();
 const authStore = useAuthStore();
 const cartStore = useCartStore();
 const productsStore = useProductsStore();
+const settingsStore = useSettingsStore();
 
 const searchQuery = ref('');
 const showUserMenu = ref(false);
+const showCurrencyMenu = ref(false);
+const showLanguageMenu = ref(false);
+
+// Currency options
+const currencies = [
+  { code: 'ILS', symbol: '₪' },
+  { code: 'USD', symbol: '$' },
+  { code: 'PHP', symbol: '₱' }
+];
+
+// Language options
+const languageOptions = [
+  {
+    code: 'en',
+    label: 'English',
+    emoji: '🇺🇸',
+    flagSrc: US_FLAG
+  },
+  {
+    code: 'he',
+    label: 'עברית',
+    emoji: '🇮🇱',
+    flagSrc: IL_FLAG
+  }
+];
 
 const handleSearch = () => {
   if (searchQuery.value.trim()) {
@@ -154,10 +213,24 @@ const toggleUserMenu = () => {
   showUserMenu.value = !showUserMenu.value;
 };
 
+
+
+const selectLanguage = (locale: string) => {
+  settingsStore.setLocale(locale as 'en' | 'he');
+  showLanguageMenu.value = false;
+};
+
+const currentLanguage = computed(() => {
+  return languageOptions.find(l => l.code === settingsStore.locale) || languageOptions[0];
+});
+
+
+
 const handleClickOutside = (event: Event) => {
   const target = event.target as HTMLElement;
   if (!target.closest('.relative')) {
     showUserMenu.value = false;
+    showLanguageMenu.value = false;
   }
 };
 
@@ -169,3 +242,10 @@ onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside);
 });
 </script>
+
+<style scoped>
+.w-4 {
+  width: 1rem;
+  height: 1rem;
+}
+</style>

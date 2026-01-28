@@ -45,6 +45,11 @@
     <div class="p-3">
       <!-- Name with 2-line clamp -->
       <h3 class="font-medium text-sm mb-2 line-clamp-2 h-10 leading-5">{{ product.name }}</h3>
+      
+      <!-- Product Description -->
+      <p class="text-xs text-gray-600 mb-2 line-clamp-2 h-8 leading-4">
+        {{ product.baseDescription[settingsStore.locale] || product.baseDescription.en }}
+      </p>
 
       <!-- Rating Stars and Sold Count -->
       <div class="flex items-center gap-2 mb-2">
@@ -101,7 +106,7 @@
         @click="openQuickView"
         class="w-full bg-orange-500 text-white px-3 py-2 rounded text-sm font-medium hover:bg-orange-600 transition-colors"
       >
-        View Options
+         Quick View
       </button>
     </div>
 
@@ -118,6 +123,9 @@
 import { ref, computed } from 'vue';
 import QuickViewModal from './QuickViewModal.vue';
 import type { Product, ProductVariant, ProductAttribute } from '@/types';
+import { useSettingsStore } from '@/stores/settings';
+import { formatMoney as formatMoneyUtil, calculateDiscountPercent } from '@/utils/money';
+
 
 interface Props {
   product: Product;
@@ -128,6 +136,9 @@ const props = defineProps<Props>();
 const emit = defineEmits<{
   'add-to-cart': [product: Product, variant: ProductVariant];
 }>();
+
+const settingsStore = useSettingsStore();
+
 
 // Quick View modal state
 const isQuickViewOpen = ref(false);
@@ -201,13 +212,9 @@ const activeVariant = computed((): ProductVariant => {
   return props.product.variants[0];
 });
 
-// Price calculation helpers with NaN protection
-const formatMoney = (amount: number | undefined | null): string => {
-  const num = Number(amount);
-  if (!Number.isFinite(num) || num < 0) {
-    return '₱0.00';
-  }
-  return `₱${num.toFixed(2)}`;
+// Price formatting using currency utilities
+const formatMoney = (amountILS: number): string => {
+  return formatMoneyUtil(amountILS, settingsStore.currency, settingsStore.locale, settingsStore.rates);
 };
 
 const getDiscountPercent = (price: number, salePrice: number | undefined): number | null => {
@@ -221,7 +228,7 @@ const getDiscountPercent = (price: number, salePrice: number | undefined): numbe
 };
 
 const discountPercent = computed(() => 
-  getDiscountPercent(activeVariant.value.price, activeVariant.value.salePrice)
+  calculateDiscountPercent(activeVariant.value.price || 0, activeVariant.value.salePrice || 0)
 );
 
 // Calculate price range across all variants

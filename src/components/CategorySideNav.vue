@@ -1,6 +1,6 @@
 <template>
   <div class="bg-white rounded-lg shadow-sm p-4">
-    <h3 class="font-semibold text-lg mb-4">Categories</h3>
+      <h3 class="font-semibold text-lg mb-4">Categories</h3>
     
     <!-- All Categories Option -->
     <div class="mb-6">
@@ -17,7 +17,7 @@
     </div>
 
     <div class="border-t pt-4">
-      <h3 class="font-semibold text-lg mb-4">Shop by Category</h3>
+    <h3 class="font-semibold text-lg mb-4">Categories</h3>
       
       <!-- Category List -->
       <div class="space-y-2">
@@ -104,6 +104,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { PACKAGING_CATEGORIES } from '@/mocks/products';
 import type { ProductCategory } from '@/types';
 
+
 interface Props {
   categories?: ProductCategory[];
 }
@@ -121,6 +122,7 @@ const emit = defineEmits<Emit>();
 
 const route = useRoute();
 const router = useRouter();
+
 
 // State
 const selectedCategory = ref<ProductCategory | null>(null);
