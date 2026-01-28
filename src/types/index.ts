@@ -170,3 +170,13 @@ export interface PaginatedResponse<T> {
   per_page: number;
   total: number;
 }
+
+export interface HomeBanner {
+  id: number;
+  name: string;
+  title: string;
+  subtitle: string;
+  link_url: string;
+  sort_order: number;
+  images: Array<{ url: string }>;
+}

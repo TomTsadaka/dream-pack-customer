@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">
+  <defs>
+    <linearGradient id="boxes" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8b5cf6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7c3aed;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#boxes)"/>
+  <rect x="120" y="80" width="160" height="140" fill="white" opacity="0.2" rx="5"/>
+  <line x1="120" y1="120" x2="280" y2="120" stroke="white" stroke-width="2" opacity="0.3"/>
+  <line x1="120" y1="180" x2="280" y2="180" stroke="white" stroke-width="2" opacity="0.3"/>
+  <text x="200" y="155" font-family="Arial, sans-serif" font-size="20" fill="white" text-anchor="middle">Boxes</text>
+  <text x="200" y="180" font-family="Arial, sans-serif" font-size="16" fill="white" text-anchor="middle">& Cartons</text>
+</svg>

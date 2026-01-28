@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="600" viewBox="0 0 1920 600">
+  <defs>
+    <linearGradient id="hero1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2563eb;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1e40af;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="1920" height="600" fill="url(#hero1)"/>
+  <text x="960" y="300" font-family="Arial, sans-serif" font-size="48" fill="white" text-anchor="middle">Premium Packaging Solutions</text>
+  <text x="960" y="350" font-family="Arial, sans-serif" font-size="24" fill="white" text-anchor="middle">Hero Banner 1</text>
+  <circle cx="200" cy="150" r="80" fill="white" opacity="0.1"/>
+  <rect x="1500" y="400" width="120" height="120" fill="white" opacity="0.1" transform="rotate(45 1560 460)"/>
+</svg>
