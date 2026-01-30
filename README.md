@@ -98,7 +98,7 @@ src/
 1. **Clone and setup**
 ```bash
 git clone <your-repo-url>
-cd onlishoping
+cd dpshoping
 npm install
 ```
 

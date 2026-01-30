@@ -3,6 +3,36 @@
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <h1 class="text-3xl font-bold mb-8">My Orders</h1>
 
+      <!-- Status Tabs -->
+      <div class="mb-8">
+        <div class="flex space-x-1 bg-gray-100 p-1 rounded-lg">
+          <button
+            v-for="status in statusTabs"
+            :key="status.key"
+            @click="activeTab = status.key"
+            :class="[
+              'flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors',
+              activeTab === status.key
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-600 hover:text-gray-900'
+            ]"
+          >
+            {{ status.label }}
+            <span
+              v-if="getOrderCount(status.key) > 0"
+              :class="[
+                'ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium',
+                activeTab === status.key
+                  ? 'bg-primary-100 text-primary-800'
+                  : 'bg-gray-200 text-gray-600'
+              ]"
+            >
+              {{ getOrderCount(status.key) }}
+            </span>
+          </button>
+        </div>
+      </div>
+
       <div v-if="!authStore.isLoggedIn" class="text-center py-12">
         <p class="text-gray-500 text-lg mb-4">Please login to view your orders</p>
         <router-link
@@ -20,10 +50,10 @@
         </div>
 
         <!-- Orders List -->
-        <div v-else-if="ordersStore.orders.length > 0">
+        <div v-else-if="filteredOrders.length > 0">
           <div class="space-y-6">
             <div
-              v-for="order in ordersStore.recentOrders"
+              v-for="order in filteredOrders"
               :key="order.id"
               class="bg-white rounded-lg shadow-md overflow-hidden"
             >
@@ -101,7 +131,7 @@
                     Order Again
                   </button>
                   <button
-                    v-if="order.status === 'pending'"
+                    v-if="order.status === 'pending' || order.status === 'processing'"
                     class="text-red-500 hover:text-red-600 font-medium text-sm"
                   >
                     Cancel Order
@@ -119,9 +149,14 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
           </div>
-          <h2 class="text-xl font-semibold text-gray-600 mb-2">No orders yet</h2>
-          <p class="text-gray-500 mb-6">Start shopping to see your orders here</p>
+          <h2 class="text-xl font-semibold text-gray-600 mb-2">
+            {{ activeTab === 'all' ? 'No orders yet' : `No ${getActiveTabLabel()} orders` }}
+          </h2>
+          <p class="text-gray-500 mb-6">
+            {{ activeTab === 'all' ? 'Start shopping to see your orders here' : 'You have no orders in this status' }}
+          </p>
           <router-link
+            v-if="activeTab === 'all'"
             to="/shop"
             class="bg-primary-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary-700 transition-colors inline-block"
           >
@@ -134,7 +169,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { useOrdersStore } from '@/stores/orders';
@@ -148,6 +183,48 @@ const authStore = useAuthStore();
 const ordersStore = useOrdersStore();
 const productsStore = useProductsStore();
 const settingsStore = useSettingsStore();
+
+// Status management
+const activeTab = ref('all');
+
+const statusTabs = [
+  { key: 'all', label: 'All Orders' },
+  { key: 'processing', label: 'Processing' },
+  { key: 'to_ship', label: 'To Ship' },
+  { key: 'shipped', label: 'Shipped' },
+  { key: 'delivered', label: 'Delivered' },
+  { key: 'cancelled', label: 'Cancelled' }
+];
+
+// Computed properties for filtered orders
+const filteredOrders = computed(() => {
+  if (activeTab.value === 'all') {
+    return ordersStore.recentOrders;
+  }
+  
+  // Map 'to_ship' tab to 'processing' status (you can adjust this based on your backend logic)
+  const statusMap: Record<string, string> = {
+    'to_ship': 'processing'
+  };
+  
+  const targetStatus = statusMap[activeTab.value] || activeTab.value;
+  
+  return ordersStore.recentOrders.filter(order => order.status === targetStatus);
+});
+
+const getOrderCount = (status: string) => {
+  if (status === 'all') {
+    return ordersStore.orders.length;
+  }
+  
+  const statusMap: Record<string, string> = {
+    'to_ship': 'processing'
+  };
+  
+  const targetStatus = statusMap[status] || status;
+  
+  return ordersStore.orders.filter(order => order.status === targetStatus).length;
+};
 
 // Format money using utility
 const formatMoney = (amount: number): string => {
@@ -165,7 +242,16 @@ const formatDate = (dateString: string) => {
 };
 
 const formatStatus = (status: string) => {
-  return status.charAt(0).toUpperCase() + status.slice(1);
+  // Map backend status to display labels
+  const statusMap: Record<string, string> = {
+    'pending': 'Pending',
+    'processing': 'To Ship',
+    'shipped': 'Shipped',
+    'delivered': 'Delivered',
+    'cancelled': 'Cancelled'
+  };
+  
+  return statusMap[status] || status.charAt(0).toUpperCase() + status.slice(1);
 };
 
 const getStatusClass = (status: string) => {
@@ -195,6 +281,11 @@ const getOrderItemThumbnail = (orderItem: any) => {
   
   // Fallback to placeholder if product not found
   return '/images/placeholder-product.svg';
+};
+
+const getActiveTabLabel = () => {
+  const tab = statusTabs.find(t => t.key === activeTab.value);
+  return tab ? tab.label : '';
 };
 
 const viewOrderDetails = (orderId: number) => {

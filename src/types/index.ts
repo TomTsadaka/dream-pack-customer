@@ -147,6 +147,11 @@ export interface RegisterForm {
   email: string;
   password: string;
   password_confirmation: string;
+  address: string;
+  contact_number: string;
+  city: string;
+  country: string;
+  postal_code: string;
 }
 
 export interface ShippingForm {

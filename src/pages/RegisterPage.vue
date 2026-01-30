@@ -3,7 +3,7 @@
     <div class="max-w-md w-full">
       <div class="text-center mb-8">
         <h1 class="text-3xl font-bold text-gray-900 mb-2">Create Account</h1>
-        <p class="text-gray-600">Join OnliShopping today</p>
+        <p class="text-gray-600">Join DPShoping today</p>
       </div>
 
       <div class="bg-white rounded-lg shadow-md p-8">
@@ -36,6 +36,103 @@
               class="input"
               placeholder="you@example.com"
             />
+          </div>
+
+          <!-- Address -->
+          <div class="mb-4">
+            <label for="address" class="block text-sm font-medium text-gray-700 mb-2">
+              Address
+            </label>
+            <input
+              id="address"
+              v-model="form.address"
+              type="text"
+              required
+              minlength="5"
+              class="input"
+              placeholder="Street address"
+            />
+            <div v-if="errors.address" class="mt-1 text-sm text-red-600">
+              {{ errors.address }}
+            </div>
+          </div>
+
+          <!-- City and Country in same row -->
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <label for="city" class="block text-sm font-medium text-gray-700 mb-2">
+                City
+              </label>
+              <input
+                id="city"
+                v-model="form.city"
+                type="text"
+                required
+                minlength="2"
+                class="input"
+                placeholder="City"
+              />
+              <div v-if="errors.city" class="mt-1 text-sm text-red-600">
+                {{ errors.city }}
+              </div>
+            </div>
+            <div>
+              <label for="country" class="block text-sm font-medium text-gray-700 mb-2">
+                Country
+              </label>
+              <input
+                id="country"
+                v-model="form.country"
+                type="text"
+                required
+                minlength="2"
+                class="input"
+                placeholder="Country"
+              />
+              <div v-if="errors.country" class="mt-1 text-sm text-red-600">
+                {{ errors.country }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Postal Code -->
+          <div class="mb-4">
+            <label for="postal_code" class="block text-sm font-medium text-gray-700 mb-2">
+              Postal Code
+            </label>
+            <input
+              id="postal_code"
+              v-model="form.postal_code"
+              type="text"
+              required
+              minlength="3"
+              pattern="[a-zA-Z0-9\s\-]+"
+              class="input"
+              placeholder="12345 or ABC-123"
+            />
+            <div v-if="errors.postal_code" class="mt-1 text-sm text-red-600">
+              {{ errors.postal_code }}
+            </div>
+          </div>
+
+          <!-- Contact Number -->
+          <div class="mb-4">
+            <label for="contact_number" class="block text-sm font-medium text-gray-700 mb-2">
+              Contact Number
+            </label>
+            <input
+              id="contact_number"
+              v-model="form.contact_number"
+              type="tel"
+              required
+              minlength="7"
+              pattern="[0-9\s\+\-]+"
+              class="input"
+              placeholder="+63 9XXXXXXXXX"
+            />
+            <div v-if="errors.contact_number" class="mt-1 text-sm text-red-600">
+              {{ errors.contact_number }}
+            </div>
           </div>
 
           <!-- Password -->
@@ -131,20 +228,62 @@ const form = ref<RegisterForm>({
   name: '',
   email: '',
   password: '',
-  password_confirmation: ''
+  password_confirmation: '',
+  address: '',
+  contact_number: '',
+  city: '',
+  country: '',
+  postal_code: ''
 });
 
 const errorMessage = ref('');
+const errors = ref<Record<string, string>>({});
 
 const handleRegister = async () => {
   try {
     errorMessage.value = '';
+    errors.value = {};
+    
+    // Validate new fields
+    if (form.value.address.length < 5) {
+      errors.value.address = 'Address must be at least 5 characters long';
+    }
+    
+    if (form.value.city.length < 2) {
+      errors.value.city = 'City must be at least 2 characters long';
+    }
+    
+    if (form.value.country.length < 2) {
+      errors.value.country = 'Country must be at least 2 characters long';
+    }
+    
+    if (form.value.postal_code.length < 3) {
+      errors.value.postal_code = 'Postal code must be at least 3 characters long';
+    }
+    
+    const postalRegex = /^[a-zA-Z0-9\s\-]+$/;
+    if (!postalRegex.test(form.value.postal_code)) {
+      errors.value.postal_code = 'Postal code can only contain letters, numbers, spaces, and hyphens';
+    }
+    
+    const contactRegex = /^[0-9\s\+\-]+$/;
+    if (!contactRegex.test(form.value.contact_number)) {
+      errors.value.contact_number = 'Contact number can only contain digits, spaces, +, and -';
+    } else if (form.value.contact_number.length < 7) {
+      errors.value.contact_number = 'Contact number must be at least 7 characters long';
+    }
     
     if (form.value.password !== form.value.password_confirmation) {
       errorMessage.value = 'Passwords do not match';
       return;
     }
     
+    // Check if there are any validation errors
+    if (Object.keys(errors.value).length > 0) {
+      return;
+    }
+    
+    // address and contact_number are required by backend (Laravel) registration API
     const result = await authStore.register(form.value);
     
     if (result.success) {

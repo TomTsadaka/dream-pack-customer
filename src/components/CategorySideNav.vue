@@ -46,49 +46,51 @@
     <div class="border-t pt-4">
       <h3 class="font-semibold text-lg mb-4">Price Range</h3>
       
-      <div class="flex items-center gap-4">
-        <div class="flex-1">
-          <label class="block text-sm font-medium text-gray-700 mb-1">
-            Min Price
-          </label>
-          <input
-            type="number"
-            v-model="minPrice"
-            @input="handlePriceFilterChange"
-            placeholder="0"
-            min="0"
-            step="0.01"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+      <div class="space-y-3">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Min Price
+            </label>
+            <input
+              type="number"
+              v-model="minPrice"
+              @input="handlePriceFilterChange"
+              placeholder="0"
+              min="0"
+              step="0.01"
+              class="w-full min-w-[110px] px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-right"
+            />
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Max Price
+            </label>
+            <input
+              type="number"
+              v-model="maxPrice"
+              @input="handlePriceFilterChange"
+              placeholder="1000"
+              min="0"
+              step="0.01"
+              class="w-full min-w-[110px] px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-right"
+            />
+          </div>
         </div>
         
-        <div class="flex-1">
-          <label class="block text-sm font-medium text-gray-700 mb-1">
-            Max Price
-          </label>
-          <input
-            type="number"
-            v-model="maxPrice"
-            @input="handlePriceFilterChange"
-            placeholder="1000"
-            min="0"
-            step="0.01"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-        
-        <div class="flex gap-2">
+        <div class="grid grid-cols-2 gap-3">
           <button
             @click="applyPriceFilter"
             :disabled="!isValidPriceRange"
-            class="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+            class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
           >
             Apply
           </button>
           
           <button
             @click="clearPriceFilter"
-            class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-colors"
+            class="w-full px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-colors"
           >
             Clear
           </button>
