@@ -13,9 +13,19 @@
         <div class="text-center">
           <h1 class="text-4xl md:text-5xl font-bold mb-4">{{ currentBanner?.title || 'Welcome to Dream Pack' }}</h1>
           <p class="text-xl md:text-2xl mb-8">{{ currentBanner?.subtitle || 'Premium packaging solutions for every business' }}</p>
+          <router-link
+            v-if="getBannerLink.to"
+            :to="getBannerLink.to"
+            class="border-2 border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-white hover:text-gray-800 transition-colors inline-block"
+          >
+            Start Shopping
+          </router-link>
           <a
-            :href="currentBanner?.link_url || '/shop'"
-            class="bg-white text-primary-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors inline-block"
+            v-else-if="getBannerLink.isExternal && getBannerLink.href"
+            :href="getBannerLink.href"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="border-2 border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-white hover:text-gray-800 transition-colors inline-block"
           >
             Start Shopping
           </a>
@@ -40,34 +50,38 @@
 
     <!-- Shop by Category -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <h2 class="text-2xl font-bold mb-8 text-center">{{ t('home.shopByCategory') }}</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <h2 class="text-2xl font-bold mb-8 text-center text-gray-800">{{ t('home.shopByCategory') }}</h2>
+      
+      <!-- Loading State -->
+      <div v-if="isCategoriesLoading" class="text-center py-8">
+        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-400"></div>
+      </div>
+      
+      <!-- Categories Grid -->
+      <div v-else-if="categoryCards.length > 0" class="grid grid-cols-2 md:grid-cols-4 gap-4">
         <router-link
           v-for="category in categoryCards"
           :key="category.id"
           :to="category.route"
-          class="relative group overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer"
+          class="group border border-gray-200 rounded-xl p-6 hover:border-gray-400 hover:bg-gray-50 transition-all duration-200 cursor-pointer text-center"
         >
-          <!-- Background image with overlay -->
-          <div 
-            class="relative h-48 bg-cover bg-center"
-            :style="{ backgroundImage: `url(${category.image})` }"
-          >
-            <!-- Dark overlay -->
-            <div class="absolute inset-0 bg-black bg-opacity-40 group-hover:bg-opacity-50 transition-opacity"></div>
-            
-            <!-- Category title centered -->
-            <div class="absolute inset-0 flex items-center justify-center">
-              <h3 class="text-white text-xl font-bold text-center px-4">{{ category.name }}</h3>
-            </div>
+          <!-- Icon -->
+          <div class="w-12 h-12 mx-auto mb-3 text-gray-600">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+            </svg>
           </div>
           
-          <!-- Hover effect - slight zoom on image -->
-          <div class="absolute inset-0 transform scale-105 group-hover:scale-110 transition-transform duration-300"
-               :style="{ backgroundImage: `url(${category.image})` }"
-               style="background-size: cover; background-position: center; opacity: 0.3;">
-          </div>
+          <!-- Category name -->
+          <h3 class="text-gray-800 font-medium text-sm group-hover:text-gray-600 transition-colors">
+            {{ category.name }}
+          </h3>
         </router-link>
+      </div>
+      
+      <!-- Empty State -->
+      <div v-else class="text-center py-8">
+        <p class="text-gray-400">No categories available</p>
       </div>
     </div>
 
@@ -79,7 +93,7 @@
       </div>
       <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         <ProductCard
-          v-for="product in productsStore.featuredProducts"
+          v-for="product in featuredList"
           :key="product.id"
           :product="product"
           @add-to-cart="handleAddToCart"
@@ -88,7 +102,7 @@
       <div class="text-center mt-8">
         <router-link
           to="/shop"
-          class="bg-primary-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary-700 transition-colors inline-block"
+          class="border-2 border-gray-600 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors inline-block"
         >
           View All Products
         </router-link>
@@ -103,7 +117,7 @@
           <p class="text-lg">Get 20% off on all selected products this weekend only</p>
           <router-link
             to="/shop?category=electronics"
-            class="bg-white text-orange-500 px-6 py-2 rounded-lg font-semibold hover:bg-gray-100 transition-colors inline-block mt-4"
+            class="border-2 border-white text-white px-6 py-2 rounded-lg font-semibold hover:bg-white hover:text-orange-500 transition-colors inline-block mt-4"
           >
             Shop now
           </router-link>
@@ -117,61 +131,57 @@
 import { onMounted, ref, computed, onUnmounted } from 'vue';
 import { useProductsStore } from '@/stores/products';
 import { useCartStore } from '@/stores/cart';
+import { useBannersStore } from '@/stores/banners';
 import { useRouter } from 'vue-router';
 import ProductCard from '@/components/ProductCard.vue';
 import { useToastStore } from '@/stores/toast';
 import { useI18n } from 'vue-i18n';
-import { bannerService } from '@/services/bannerService';
-import type { HomeBanner } from '@/types';
+import type { Banner } from '@/types';
 
 const router = useRouter();
 const productsStore = useProductsStore();
+const bannersStore = useBannersStore();
 const cartStore = useCartStore();
 const toastStore = useToastStore();
 const { t } = useI18n();
 
-// Banner data
-const banners = ref<HomeBanner[]>([]);
+// Banner state
 const currentBannerIndex = ref(0);
 let autoRotateInterval: number | null = null;
 
-// Static category cards with images and route mapping
-const categoryCards = [
-  {
-    id: 1,
-    name: 'Pouches and Bag',
-    image: '/images/categories/pouches-bags.svg',
-    route: { path: '/shop', query: { category: 'Flexible Packaging' } }
-  },
-  {
-    id: 2,
-    name: 'Boxes and Cartons',
-    image: '/images/categories/boxes-cartons.svg',
-    route: { path: '/shop', query: { category: 'Rigid Packaging' } }
-  },
-  {
-    id: 3,
-    name: 'Bottles for Packaging',
-    image: '/images/categories/bottles-packaging.svg',
-    route: { path: '/shop', query: { category: 'Bottles & Containers' } }
-  },
-  {
-    id: 4,
-    name: 'Packaging for Retail',
-    image: '/images/categories/retail-packaging.svg',
-    route: { path: '/shop', query: { category: 'Shelf-ready & Retail Packaging' } }
-  }
-];
-
 // Computed properties
-const currentBanner = computed(() => {
-  return banners.value[currentBannerIndex.value] || null;
+const banners = computed(() => bannersStore.sortedBanners);
+
+const currentBanner = computed((): Banner | null => {
+  return banners.value[currentBannerIndex.value] || bannersStore.heroBanner;
+});
+
+const categoryCards = computed(() => {
+  const cats = productsStore.activeCategories;
+  if (!cats.length) return [];
+  
+  return cats.slice(0, 4).map((category) => ({
+    id: category.id,
+    name: category.name,
+    slug: category.slug,
+    image: getCategoryImage(category.slug),
+    route: { path: '/shop', query: { category: category.slug } }
+  }));
+});
+
+const isCategoriesLoading = computed(() => productsStore.categoriesLoading);
+
+const featuredList = computed(() => {
+  const products = productsStore.featuredProducts;
+  if (!products) return [];
+  if (Array.isArray(products)) return products;
+  return products.products ?? [];
 });
 
 const heroBackgroundStyle = computed(() => {
-  if (currentBanner.value && currentBanner.value.images.length > 0) {
+  if (currentBanner.value?.image_url) {
     return {
-      backgroundImage: `url(${currentBanner.value.images[0].url})`,
+      backgroundImage: `url(${currentBanner.value.image_url})`,
       backgroundSize: 'cover',
       backgroundPosition: 'center',
       minHeight: '500px'
@@ -200,19 +210,58 @@ const stopAutoRotate = () => {
   }
 };
 
+// Link normalization: convert /products to /shop
+interface BannerLink {
+  to: string | null;
+  isExternal: boolean;
+  href?: string;
+}
+
+const normalizeBannerLink = (linkUrl: string): BannerLink => {
+  if (!linkUrl) {
+    return { to: '/shop', isExternal: false };
+  }
+  
+  // Check if external URL
+  if (linkUrl.startsWith('http://') || linkUrl.startsWith('https://')) {
+    return { to: null, isExternal: true, href: linkUrl };
+  }
+  
+  // Convert /products to /shop
+  let normalized = linkUrl;
+  if (normalized.startsWith('/products')) {
+    normalized = normalized.replace('/products', '/shop');
+  }
+  
+  return { to: normalized, isExternal: false };
+};
+
+const getBannerLink = computed<BannerLink>(() => {
+  if (!currentBanner.value?.link_url) {
+    return { to: '/shop', isExternal: false };
+  }
+  return normalizeBannerLink(currentBanner.value.link_url);
+});
+
 const handleAddToCart = (product: any, variant: any) => {
   cartStore.addToCart(product, variant);
   toastStore.success(`${product.name} added to cart!`);
 };
 
+const getCategoryImage = (slug: string): string => {
+  const imageMap: Record<string, string> = {
+    'pouches': '/images/categories/pouches-bags.svg',
+    'bottles-containers': '/images/categories/bottles-packaging.svg',
+    'boxes': '/images/categories/boxes-cartons.svg',
+    'shelf-ready-packaging': '/images/categories/retail-packaging.svg',
+  };
+  return imageMap[slug] || '/images/categories/default.svg';
+};
+
 onMounted(async () => {
-  // Load banners
-  try {
-    banners.value = await bannerService.getBanners();
-    startAutoRotate();
-  } catch (error) {
-    console.error('Failed to load banners:', error);
-  }
+  // Load banners from store
+  await bannersStore.fetchBanners();
+  startAutoRotate();
 
   // Load products and categories
   await Promise.all([

@@ -6,6 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dream Pack - Premium Packaging Solutions</title>
     <meta name="description" content="Premium packaging solutions for every business at Dream Pack">
+    
+    <!-- Preload critical assets -->
+    <link rel="preload" href="/src/main.ts" as="script">
+    <link rel="preconnect" href="http://localhost:8000">
+    
+    <!-- Critical CSS inline (optional for even faster FCP) -->
+    <style>
+      body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+      #app { min-height: 100vh; }
+    </style>
   </head>
   <body>
     <div id="app"></div>

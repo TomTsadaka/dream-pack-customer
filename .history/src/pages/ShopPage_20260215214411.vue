@@ -23,7 +23,7 @@
           >
             <option value="">All Categories</option>
             <option
-              v-for="category in productsStore.activeCategories"
+              v-for="category in productsStore.categories"
               :key="category.id"
               :value="category.name"
             >
@@ -76,12 +76,15 @@
 All Categories
             </button>
             <button
-              v-for="category in productsStore.activeCategories"
+              v-for="category in productsStore.categories"
               :key="category.id"
               @click="handleMobileCategorySelect(category.name)"
               class="block w-full text-left px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
             >
-              <span>{{ category.name }}</span>
+              <div class="flex justify-between items-center">
+                <span>{{ category.name }}</span>
+                <span class="text-sm text-gray-500">({{ category.product_count }})</span>
+              </div>
             </button>
           </div>
         </div>
@@ -133,6 +136,7 @@ All Categories
         <!-- Category Sidebar -->
         <div class="hidden lg:block w-64">
           <CategorySideNav
+            :categories="productsStore.categories as any"
             @category-changed="handleCategoryChanged"
             @price-filter-changed="handlePriceFilterChanged"
           />
@@ -224,11 +228,10 @@ const handleCategoryChange = (category: string) => {
   productsStore.setFilters({ category });
   productsStore.loadProducts();
   
-  // Update URL with slug for bookmarkability, keep name internally
+  // Update URL maintaining search query
   const query = { ...route.query };
   if (category) {
-    const cat = productsStore.activeCategories.find(c => c.name === category);
-    query.category = cat?.slug || category.toLowerCase().replace(/\s+/g, '-');
+    query.category = category.toLowerCase();
   } else {
     delete query.category;
   }
@@ -250,11 +253,10 @@ const handleMobileCategorySelect = (category: string) => {
   productsStore.loadProducts();
   showMobileCategories.value = false;
   
-  // Update URL with slug for bookmarkability
+  // Update URL maintaining other filters
   const query = { ...route.query };
   if (category) {
-    const cat = productsStore.activeCategories.find(c => c.name === category);
-    query.category = cat?.slug || category.toLowerCase().replace(/\s+/g, '-');
+    query.category = category.toLowerCase();
   } else {
     delete query.category;
   }
@@ -277,7 +279,7 @@ const handleAddToCart = (product: any, variant: any) => {
 };
 
 const handleCategoryChanged = (category: any) => {
-  handleCategoryChange(category?.name || '');
+  handleCategoryChange(category?.parent || '');
 };
 
 const handlePriceFilterChanged = (priceRange: { min: number | null; max: number | null;}) => {
@@ -314,12 +316,8 @@ onMounted(async () => {
   const filtersToUpdate: any = {};
   
   if (route.query.category) {
-    // Convert slug from URL to category name for filtering
-    const slug = route.query.category as string;
-    const category = productsStore.activeCategories.find(c => c.slug === slug);
-    const categoryName = category?.name || slug;
-    selectedCategory.value = categoryName;
-    filtersToUpdate.category = categoryName;
+    selectedCategory.value = route.query.category as string;
+    filtersToUpdate.category = route.query.category as string;
   }
   
   if (route.query.q) {
@@ -372,11 +370,8 @@ watch(
   () => route.query,
   async (newQuery) => {
     if (newQuery.category !== selectedCategory.value) {
-      const slug = newQuery.category as string || '';
-      const category = productsStore.activeCategories.find(c => c.slug === slug);
-      const categoryName = category?.name || slug;
-      selectedCategory.value = categoryName;
-      productsStore.setFilters({ category: categoryName });
+      selectedCategory.value = newQuery.category as string || '';
+      productsStore.setFilters({ category: newQuery.category as string || '' });
     }
     
     if (newQuery.q !== productsStore.filters.search) {

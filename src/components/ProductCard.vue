@@ -48,7 +48,7 @@
       
       <!-- Product Description -->
       <p class="text-xs text-gray-600 mb-2 line-clamp-2 h-8 leading-4">
-        {{ product.baseDescription[settingsStore.locale] || product.baseDescription.en }}
+        {{ product?.baseDescription?.[settingsStore.locale] ?? product?.baseDescription?.en ?? product?.description ?? '' }}
       </p>
 
       <!-- Rating Stars and Sold Count -->

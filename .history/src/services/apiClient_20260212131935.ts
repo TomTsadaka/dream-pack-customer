@@ -2,9 +2,9 @@ import axios from 'axios';
 import type { ApiResponse } from '@/types';
 
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000',
+  baseURL: `${import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000"}/api`,
   timeout: 15000,
-  withCredentials: false,
+  withCredentials: true,
   headers: {
     'Accept': 'application/json',
     'Content-Type': 'application/json',
@@ -28,6 +28,7 @@ apiClient.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem('auth_token');
       localStorage.removeItem('auth_user');
+      window.location.href = '/login';
     }
     
     // Normalize errors into { message: string, status?: number, details?: any }
@@ -40,6 +41,13 @@ apiClient.interceptors.response.use(
     return Promise.reject(normalizedError);
   }
 );
+
+export const getCsrfCookie = async (): Promise<void> => {
+  if (import.meta.env.VITE_USE_MOCKS === 'true') {
+    return;
+  }
+  await apiClient.get('/sanctum/csrf-cookie');
+};
 
 export const api = {
   get: <T>(url: string, params?: any): Promise<ApiResponse<T>> => 

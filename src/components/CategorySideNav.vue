@@ -22,20 +22,20 @@
       <!-- Category List -->
       <div class="space-y-2">
         <label
-          v-for="category in categories"
+          v-for="category in displayedCategories"
           :key="category.id"
           class="flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:bg-blue-50 hover:border-blue-300 cursor-pointer transition-colors"
-          :class="{ 'bg-blue-50 border-blue-300': selectedCategory?.parent === category.parent }"
+          :class="{ 'bg-blue-50 border-blue-300': selectedCategory?.slug === category.slug }"
         >
           <input
             type="radio"
-            :value="category.parent"
+            :value="category.slug"
             v-model="selectedCategory"
             @change="handleCategoryChange"
             class="text-blue-600"
           />
           <div>
-            <div class="font-medium">{{ category.categoryName }}</div>
+            <div class="font-medium">{{ category.name }}</div>
             <div class="text-sm text-gray-600">{{ category.description }}</div>
           </div>
         </label>
@@ -101,22 +101,21 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { PACKAGING_CATEGORIES } from '@/mocks/products';
-import type { ProductCategory } from '@/types';
-
+import { useProductsStore } from '@/stores/products';
+import type { ProductCategory, Category } from '@/types';
 
 interface Props {
-  categories?: ProductCategory[];
+  categories?: Category[];
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  categories: () => PACKAGING_CATEGORIES
+  categories: () => []
 });
 
 type Emit = {
-  (e: "categoryChanged", category: ProductCategory | null): void
+  (e: "categoryChanged", category: Category | null): void
   (e: "priceFilterChanged", payload: { min: number | null; max: number | null }): void
 }
 
@@ -124,10 +123,18 @@ const emit = defineEmits<Emit>();
 
 const route = useRoute();
 const router = useRouter();
+const productsStore = useProductsStore();
 
+// Use active categories from store if no props provided
+const displayedCategories = computed(() => {
+  if (props.categories.length > 0) {
+    return props.categories;
+  }
+  return productsStore.activeCategories;
+});
 
 // State
-const selectedCategory = ref<ProductCategory | null>(null);
+const selectedCategory = ref<Category | null>(null);
 const minPrice = ref<number | null>(null);
 const maxPrice = ref<number | null>(null);
 
@@ -142,7 +149,8 @@ const isValidPriceRange = computed(() => {
 // Initialize from route
 const initializeFromRoute = () => {
   if (route.query.category) {
-    const category = props.categories.find(c => c.parent === route.query.category);
+    const slug = route.query.category as string;
+    const category = displayedCategories.value.find(c => c.slug === slug);
     if (category) {
       selectedCategory.value = category;
     }
@@ -160,7 +168,7 @@ const initializeFromRoute = () => {
 // Event handlers
 const handleCategoryChange = (event: Event) => {
   const target = event.target as HTMLInputElement;
-  const category = props.categories.find(c => c.parent === target.value);
+  const category = displayedCategories.value.find(c => c.slug === target.value);
   selectedCategory.value = category || null;
   
   // Update URL
@@ -190,7 +198,7 @@ const updateQuery = () => {
   const query: any = {};
   
   if (selectedCategory.value) {
-    query.category = selectedCategory.value.parent;
+    query.category = selectedCategory.value.slug;
   }
   
   if (minPrice.value !== null) {
@@ -205,5 +213,8 @@ const updateQuery = () => {
 };
 
 // Initialize on mount
-initializeFromRoute();
+onMounted(() => {
+  initializeFromRoute();
+  productsStore.fetchCategories();
+});
 </script>

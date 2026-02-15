@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
-import type { Product, Category, PaginatedResponse, ShopFilters, ProductVariant, ProductAttribute } from '@/types';
+import type { Product, Category, PaginatedResponse, ShopFilters, ProductVariant, ProductAttribute, Pagination } from '@/types';
 import { productService } from '@/services/productService';
+import { fetchProducts as fetchProductsApi } from '@/api/products';
 
 interface ProductsState {
   products: Product[];
@@ -9,11 +10,12 @@ interface ProductsState {
   currentProduct: Product | null;
   currentVariant: ProductVariant | null;
   loading: boolean;
-  pagination: {
-    currentPage: number;
-    lastPage: number;
-    perPage: number;
-    total: number;
+  error: string | null;
+  pagination: Pagination | null;
+  query: {
+    page: number;
+    limit: number;
+    is_active: number;
   };
   filters: {
     search?: string;
@@ -31,6 +33,8 @@ interface ProductsState {
     sizes: string[];
     packSizes: number[];
   };
+  // Race safety
+  requestId: number | null;
 }
 
 export const useProductsStore = defineStore('products', {
@@ -41,11 +45,12 @@ export const useProductsStore = defineStore('products', {
     currentProduct: null,
     currentVariant: null,
     loading: false,
-    pagination: {
-      currentPage: 1,
-      lastPage: 1,
-      perPage: 12,
-      total: 0
+    error: null,
+    pagination: null,
+    query: {
+      page: 1,
+      limit: 12,
+      is_active: 1
     },
     filters: {
       search: '',
@@ -60,7 +65,8 @@ export const useProductsStore = defineStore('products', {
       colors: [],
       sizes: [],
       packSizes: []
-    }
+    },
+    requestId: null
   }),
 
   getters: {
@@ -131,10 +137,54 @@ export const useProductsStore = defineStore('products', {
       const product = state.products.find(p => p.id === productId) || state.currentProduct;
       if (!product) return null;
       return product.variants.find(v => v.variantId === variantId) || null;
-    }
+    },
+
+    activeCategories: (state): Category[] => {
+      return state.categories
+        .filter(cat => cat.is_active)
+        .sort((a, b) => {
+          if (a.sort_order !== b.sort_order) {
+            return a.sort_order - b.sort_order;
+          }
+          return a.name.localeCompare(b.name);
+        });
+    },
+
+    categoriesLoading: (state) => state.loading && state.categories.length === 0,
   },
 
   actions: {
+    async loadProducts(overrides?: Partial<typeof this.query>) {
+      const requestId = Date.now();
+      this.requestId = requestId;
+      
+      try {
+        this.loading = true;
+        this.error = null;
+        
+        const query = { ...this.query, ...overrides };
+        this.query = query;
+        
+        const response = await fetchProductsApi(query);
+        
+        // Race safety: only update if this is still the latest request
+        if (this.requestId === requestId) {
+          this.products = response.products;
+          this.pagination = response.pagination;
+          this.updateAvailableOptions();
+        }
+      } catch (error: any) {
+        if (this.requestId === requestId) {
+          this.error = error.message || 'Failed to fetch products';
+          console.error('Failed to fetch products:', error);
+        }
+      } finally {
+        if (this.requestId === requestId) {
+          this.loading = false;
+        }
+      }
+    },
+
     async fetchProducts(page = 1) {
       try {
         this.loading = true;
@@ -154,7 +204,8 @@ export const useProductsStore = defineStore('products', {
           currentPage: response.current_page,
           lastPage: response.last_page,
           perPage: response.per_page,
-          total: response.total
+          total: response.total,
+          hasMore: page < response.last_page
         };
         
         // Update available options from filtered products
@@ -169,7 +220,10 @@ export const useProductsStore = defineStore('products', {
     async fetchFeaturedProducts() {
       try {
         this.loading = true;
-        this.featuredProducts = await productService.getFeaturedProducts();
+        const response = await productService.getFeaturedProducts();
+        
+        const payload = response?.data ?? response;
+        this.featuredProducts = Array.isArray(payload) ? payload : (payload?.products ?? []);
       } catch (error) {
         console.error('Failed to fetch featured products:', error);
       } finally {
@@ -287,12 +341,43 @@ export const useProductsStore = defineStore('products', {
       };
     },
 
-    async fetchCategories() {
-      try {
-        this.categories = await productService.getCategories();
-      } catch (error) {
-        console.error('Failed to fetch categories:', error);
+    async fetchCategories(force = false) {
+      // Skip if already loaded and not forcing refresh
+      if (!force && this.categories.length > 0) {
+        return;
       }
+      
+      try {
+        this.loading = true;
+        this.error = null;
+        this.categories = await productService.getCategories();
+      } catch (error: any) {
+        this.error = error?.message || 'Failed to fetch categories';
+        console.error('Failed to fetch categories:', error);
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    setPage(page: number) {
+      this.query.page = page;
+      this.loadProducts();
+    },
+
+    setLimit(limit: number) {
+      this.query.limit = limit;
+      this.query.page = 1; // Reset page to 1 when changing limit
+      this.loadProducts();
+    },
+
+    setIsActive(val: number) {
+      this.query.is_active = val;
+      this.query.page = 1; // Reset page to 1 when changing active filter
+      this.loadProducts();
+    },
+
+    resetError() {
+      this.error = null;
     }
   }
 });

@@ -87,8 +87,19 @@ export interface Category {
   id: number;
   name: string;
   slug: string;
-  description?: string;
-  product_count: number;
+  description: string | null;
+  meta_title: string | null;
+  meta_description: string | null;
+  is_active: boolean;
+  sort_order: number;
+  parent_id: number | null;
+  children: Category[];
+  product_count?: number;
+}
+
+export interface ApiCategoriesResponse {
+  success: boolean;
+  data: Category[];
 }
 
 export interface CartItem {
@@ -163,9 +174,10 @@ export interface ShippingForm {
 }
 
 export interface ApiResponse<T> {
+  success?: boolean;
   data: T;
   message?: string;
-  status: number;
+  status?: number;
 }
 
 export interface PaginatedResponse<T> {
@@ -176,6 +188,25 @@ export interface PaginatedResponse<T> {
   total: number;
 }
 
+export interface Pagination {
+  currentPage: number;
+  lastPage: number;
+  perPage: number;
+  total: number;
+  hasMore: boolean;
+}
+
+export interface Banner {
+  id: number;
+  name: string;
+  title: string;
+  subtitle: string;
+  link_url: string;
+  image: string | null;
+  image_url: string | null;
+  sort_order: number;
+}
+
 export interface HomeBanner {
   id: number;
   name: string;
@@ -184,4 +215,5 @@ export interface HomeBanner {
   link_url: string;
   sort_order: number;
   images: Array<{ url: string }>;
+  image_url?: string;
 }

@@ -1,4 +1,4 @@
-import { api, getCsrfCookie } from './apiClient';
+import { api } from './apiClient';
 import type { User, LoginForm, RegisterForm } from '@/types';
 
 const simulateLatency = () => new Promise(resolve => setTimeout(resolve, 300 + Math.random() * 300));
@@ -22,8 +22,7 @@ export const authService = {
       };
     }
     
-    await getCsrfCookie();
-    const response = await api.post<{ user: User; token: string }>('/login', credentials);
+    const response = await api.post<{ user: User; token: string }>('/api/auth/login', credentials);
     return response.data;
   },
 
@@ -45,8 +44,7 @@ export const authService = {
       };
     }
     
-    await getCsrfCookie();
-    const response = await api.post<{ user: User; token: string }>('/register', userData);
+    const response = await api.post<{ user: User; token: string }>('/api/auth/register', userData);
     return response.data;
   },
 
@@ -56,7 +54,7 @@ export const authService = {
       return;
     }
     
-    await api.post('/logout');
+    await api.post('/api/auth/logout');
   },
 
   async getUser(): Promise<User> {
@@ -74,7 +72,7 @@ export const authService = {
       return mockUser;
     }
     
-    const response = await api.get<User>('/api/user');
+    const response = await api.get<User>('/api/auth/user');
     return response.data;
   }
 };

@@ -1,6 +1,22 @@
-import type { HomeBanner } from '@/types';
+import type { Banner, HomeBanner } from '@/types';
 import { mockBanners } from '@/mocks/banners';
-import apiClient from './apiClient';
+import { api } from './apiClient';
+
+const simulateLatency = () => new Promise(resolve => setTimeout(resolve, 200 + Math.random() * 200));
+
+/**
+ * Transform API Banner to HomeBanner for backward compatibility
+ */
+const transformBanner = (banner: Banner): HomeBanner => ({
+  id: banner.id,
+  name: banner.name,
+  title: banner.title,
+  subtitle: banner.subtitle,
+  link_url: banner.link_url,
+  sort_order: banner.sort_order,
+  images: banner.image_url ? [{ url: banner.image_url }] : [],
+  image_url: banner.image_url ?? undefined
+});
 
 class BannerService {
   /**
@@ -8,20 +24,62 @@ class BannerService {
    * Returns mock data when VITE_USE_MOCKS=true, otherwise fetches from API
    */
   async getBanners(): Promise<HomeBanner[]> {
-    // Check if we should use mock data
     if (import.meta.env.VITE_USE_MOCKS === 'true') {
-      // Return mock data sorted by sort_order
+      await simulateLatency();
       return [...mockBanners].sort((a, b) => a.sort_order - b.sort_order);
     }
 
     try {
-      // Fetch from Laravel API
-      const response = await apiClient.get('/api/banners');
-      return response.data.data || response.data;
+      const response = await api.get<any>('/api/banners');
+      const payload = response?.data ?? response;
+      
+      if (Array.isArray(payload)) {
+        return payload.map(transformBanner).sort((a, b) => a.sort_order - b.sort_order);
+      }
+      
+      return [];
     } catch (error) {
-      console.error('Failed to fetch banners from API, falling back to mock data:', error);
-      // Fallback to mock data if API fails
-      return [...mockBanners].sort((a, b) => a.sort_order - b.sort_order);
+      console.error('Failed to fetch banners from API:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get banners sorted by sort_order
+   */
+  async fetchBanners(): Promise<Banner[]> {
+    if (import.meta.env.VITE_USE_MOCKS === 'true') {
+      await simulateLatency();
+      const mock: Banner[] = mockBanners.map(b => ({
+        id: b.id,
+        name: b.name,
+        title: b.title,
+        subtitle: b.subtitle,
+        link_url: b.link_url,
+        image: null,
+        image_url: b.images[0]?.url || null,
+        sort_order: b.sort_order
+      }));
+      return mock.sort((a, b) => a.sort_order - b.sort_order);
+    }
+
+    try {
+      const response = await api.get<any>('/api/banners');
+      const payload = response?.data ?? response;
+      
+      if (Array.isArray(payload)) {
+        return payload.sort((a: Banner, b: Banner) => {
+          if (a.sort_order !== b.sort_order) {
+            return a.sort_order - b.sort_order;
+          }
+          return a.id - b.id;
+        });
+      }
+      
+      return [];
+    } catch (error) {
+      console.error('Failed to fetch banners:', error);
+      return [];
     }
   }
 
@@ -30,15 +88,17 @@ class BannerService {
    */
   async getBannerById(id: number): Promise<HomeBanner | null> {
     if (import.meta.env.VITE_USE_MOCKS === 'true') {
+      await simulateLatency();
       return mockBanners.find(banner => banner.id === id) || null;
     }
 
     try {
-      const response = await apiClient.get(`/api/banners/${id}`);
-      return response.data.data || response.data;
+      const response = await api.get<any>(`/api/banners/${id}`);
+      const payload = response?.data ?? response;
+      return transformBanner(payload);
     } catch (error) {
       console.error(`Failed to fetch banner ${id} from API:`, error);
-      return mockBanners.find(banner => banner.id === id) || null;
+      return null;
     }
   }
 

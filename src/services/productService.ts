@@ -1,5 +1,5 @@
 import { api } from './apiClient';
-import type { Product, Category, PaginatedResponse, ShopFilters, ProductVariant } from '@/types';
+import type { Product, Category, PaginatedResponse, ShopFilters, ProductVariant, ApiCategoriesResponse } from '@/types';
 import { mockProducts } from '@/mocks/products';
 import { mockCategories } from '@/mocks/categories';
 
@@ -117,8 +117,22 @@ export const productService = {
     }
     
     // Only call API if mock mode is explicitly false
-    const response = await api.get<PaginatedResponse<Product>>('/api/products', params);
-    return response.data;
+    const response = await api.get<any>('/api/products', { params });
+    
+    // Defensively parse response - handle wrapped { data: {...} } or direct
+    const apiData = response?.data ?? response;
+    const payload = apiData?.data ?? apiData;
+    
+    const products = payload?.products ?? [];
+    const paginationRaw = payload?.pagination ?? {};
+    
+    return {
+      data: products,
+      current_page: paginationRaw.current_page ?? paginationRaw.currentPage ?? 1,
+      last_page: paginationRaw.last_page ?? paginationRaw.lastPage ?? 1,
+      per_page: paginationRaw.per_page ?? paginationRaw.perPage ?? 12,
+      total: paginationRaw.total ?? 0
+    };
   },
 
   async getProduct(id: number): Promise<Product> {
@@ -133,8 +147,10 @@ export const productService = {
       return product;
     }
     
-    const response = await api.get<Product>(`/api/products/${id}`);
-    return response.data;
+    const response = await api.get<any>(`/api/products/${id}`);
+    // Handle wrapped response { data: Product } or direct Product
+    const payload = response?.data ?? response;
+    return payload as Product;
   },
 
   async getVariantById(productId: number, variantId: string): Promise<ProductVariant | null> {
@@ -161,8 +177,13 @@ export const productService = {
         .slice(0, 8);
     }
     
-    const response = await api.get<Product[]>('/api/products/featured');
-    return response.data;
+    const response = await api.get<any>('/api/products/featured');
+    // Defensively parse response - handle wrapped { data: [...] } or direct [...]
+    const payload = response?.data ?? response;
+    if (Array.isArray(payload)) {
+      return payload;
+    }
+    return (payload as any)?.products ?? [];
   },
 
   async getCategories(): Promise<Category[]> {
@@ -172,7 +193,13 @@ export const productService = {
       return mockCategories;
     }
     
-    const response = await api.get<Category[]>('/api/categories');
-    return response.data;
+    const response = await api.get<any>('/api/categories');
+    // Handle wrapped { success: true, data: [...] } or { data: [...] } or direct [...]
+    // Also handle legacy format { categories: [...] }
+    const payload = response?.data ?? response;
+    if (Array.isArray(payload)) {
+      return payload;
+    }
+    return (payload as any)?.categories ?? [];
   }
 };
