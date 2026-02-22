@@ -3,7 +3,7 @@
     <div v-if="!authStore.isLoggedIn" class="text-center py-12">
       <p class="text-gray-500 text-lg mb-4">Please login to proceed with checkout</p>
       <router-link
-        to="/login"
+        :to="`/login?redirect=${encodeURIComponent('/checkout')}`"
         class="bg-primary-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary-700 transition-colors inline-block"
       >
         Login
@@ -36,7 +36,8 @@
                   v-model="shippingForm.name"
                   type="text"
                   required
-                  class="input"
+                  :disabled="authStore.isLoggedIn"
+                  class="input disabled:bg-gray-100 disabled:cursor-not-allowed"
                   placeholder="John Doe"
                 />
               </div>
@@ -46,7 +47,8 @@
                   v-model="shippingForm.phone"
                   type="tel"
                   required
-                  class="input"
+                  :disabled="authStore.isLoggedIn"
+                  class="input disabled:bg-gray-100 disabled:cursor-not-allowed"
                   placeholder="+1234567890"
                 />
               </div>
@@ -58,7 +60,8 @@
                 v-model="shippingForm.address"
                 type="text"
                 required
-                class="input"
+                :disabled="authStore.isLoggedIn"
+                class="input disabled:bg-gray-100 disabled:cursor-not-allowed"
                 placeholder="123 Main Street, Apt 4B"
               />
             </div>
@@ -70,7 +73,8 @@
                   v-model="shippingForm.city"
                   type="text"
                   required
-                  class="input"
+                  :disabled="authStore.isLoggedIn"
+                  class="input disabled:bg-gray-100 disabled:cursor-not-allowed"
                   placeholder="New York"
                 />
               </div>
@@ -80,7 +84,45 @@
                   v-model="shippingForm.postal_code"
                   type="text"
                   required
-                  class="input"
+                  :disabled="authStore.isLoggedIn"
+                  class="input disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  placeholder="10001"
+                />
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+              <input
+                v-model="shippingForm.address"
+                type="text"
+                required
+                :disabled="authStore.isLoggedIn"
+                class="input disabled:bg-gray-100 disabled:cursor-not-allowed"
+                placeholder="123 Main Street, Apt 4B"
+              />
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">City</label>
+                <input
+                  v-model="shippingForm.city"
+                  type="text"
+                  required
+                  :disabled="authStore.isLoggedIn"
+                  class="input disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  placeholder="New York"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Postal Code</label>
+                <input
+                  v-model="shippingForm.postal_code"
+                  type="text"
+                  required
+                  :disabled="authStore.isLoggedIn"
+                  class="input disabled:bg-gray-100 disabled:cursor-not-allowed"
                   placeholder="10001"
                 />
               </div>
@@ -143,7 +185,7 @@
                   <span class="font-medium">{{ item.quantity }} × {{ item.product.name }}</span>
                 </div>
                 <span>
-                  ${{ ((item.product?.salePrice || item.product?.price || 0) * item.quantity).toFixed(2) }}
+                  {{ formatMoney((item.product?.salePrice || item.product?.price || 0) * item.quantity) }}
                 </span>
               </div>
             </div>
@@ -152,16 +194,16 @@
             <div class="border-t pt-4 space-y-2">
               <div class="flex justify-between">
                 <span class="text-gray-600">Subtotal</span>
-                <span>${{ cartStore.subtotal.toFixed(2) }}</span>
+                <span>{{ formatMoney(cartStore.subtotal) }}</span>
               </div>
               <div class="flex justify-between">
                 <span class="text-gray-600">Shipping</span>
-                <span>$10.00</span>
+                <span>{{ formatMoney(0) }}</span>
               </div>
               <div class="border-t pt-2">
                 <div class="flex justify-between font-semibold text-lg">
                   <span>Total</span>
-                  <span>${{ cartStore.total.toFixed(2) }}</span>
+                  <span>{{ formatMoney(cartStore.total) }}</span>
                 </div>
               </div>
             </div>
@@ -178,13 +220,20 @@ import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { useCartStore } from '@/stores/cart';
 import { useOrdersStore } from '@/stores/orders';
+import { useSettingsStore } from '@/stores/settings';
 import type { ShippingForm } from '@/types';
 import Toast from '@/components/Toast.vue';
+import { formatMoney as formatMoneyUtil } from '@/utils/money';
 
 const router = useRouter();
 const authStore = useAuthStore();
 const cartStore = useCartStore();
 const ordersStore = useOrdersStore();
+const settingsStore = useSettingsStore();
+
+const formatMoney = (amountILS: number): string => {
+  return formatMoneyUtil(amountILS, settingsStore.currency, settingsStore.locale, settingsStore.rates);
+};
 
 const shippingForm = ref<ShippingForm>({
   name: '',
@@ -200,15 +249,17 @@ const handleSubmit = async () => {
   try {
     const orderItems = cartStore.items.map(item => ({
       product_id: item.product.id,
-      product_name: item.product.name,
       quantity: item.quantity,
-      price: item.product.salePrice || item.product.price
+      price: item.product.salePrice || item.product.price,
+      size: item.variant?.size,
+      color: item.variant?.color,
+      pieces_per_package: item.variant?.packSize
     }));
 
     const orderData = {
+      user_id: authStore.user?.id,
       items: orderItems,
-      shipping_address: shippingForm.value,
-      total: cartStore.total
+      notes: ''
     };
 
     const result = await ordersStore.createOrder(orderData);
@@ -238,7 +289,11 @@ const handleSubmit = async () => {
 
 onMounted(() => {
   if (authStore.isLoggedIn && authStore.user) {
-    shippingForm.value.name = authStore.user.name;
+    shippingForm.value.name = authStore.user.name || '';
+    shippingForm.value.phone = authStore.user.phone || '';
+    shippingForm.value.address = authStore.user.address || '';
+    shippingForm.value.city = authStore.user.city || '';
+    shippingForm.value.postal_code = authStore.user.postal_code || '';
   }
   cartStore.init();
 });

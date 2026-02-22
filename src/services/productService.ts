@@ -178,12 +178,11 @@ export const productService = {
     }
     
     const response = await api.get<any>('/api/products/featured');
-    // Defensively parse response - handle wrapped { data: [...] } or direct [...]
     const payload = response?.data ?? response;
     if (Array.isArray(payload)) {
       return payload;
     }
-    return (payload as any)?.products ?? [];
+    return (payload as any)?.data?.products ?? (payload as any)?.products ?? [];
   },
 
   async getCategories(): Promise<Category[]> {

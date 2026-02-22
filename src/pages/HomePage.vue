@@ -174,8 +174,7 @@ const isCategoriesLoading = computed(() => productsStore.categoriesLoading);
 const featuredList = computed(() => {
   const products = productsStore.featuredProducts;
   if (!products) return [];
-  if (Array.isArray(products)) return products;
-  return products.products ?? [];
+  return products;
 });
 
 const heroBackgroundStyle = computed(() => {

@@ -112,7 +112,7 @@
             </div>
             <div class="flex justify-between">
               <span class="text-gray-600">Shipping</span>
-              <span>{{ formatMoney(10) }}</span>
+              <span>{{ formatMoney(0) }}</span>
             </div>
             <div class="border-t pt-2">
               <div class="flex justify-between font-semibold text-lg">

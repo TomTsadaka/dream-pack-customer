@@ -61,7 +61,7 @@
               <div class="bg-gray-50 px-6 py-4 border-b">
                 <div class="flex justify-between items-center">
                   <div>
-                    <h3 class="font-semibold">Order #{{ order.id }}</h3>
+                    <h3 class="font-semibold">{{ order.order_number || 'Order #' + order.id }}</h3>
                     <p class="text-sm text-gray-600">
                       {{ formatDate(order.created_at) }}
                     </p>
@@ -79,28 +79,41 @@
 
               <!-- Order Items -->
               <div class="p-6">
-                <div class="space-y-3 mb-4">
+                <div class="space-y-4 mb-4">
                    <div
                      v-for="item in order.items"
-                     :key="item.product_id"
-                     class="flex gap-4 items-center"
+                     :key="item.id"
+                     class="flex gap-4 items-start"
                    >
                      <!-- Product Image -->
                      <img
-                       :src="getOrderItemThumbnail(item)"
-                       :alt="item.product_name"
+                       :src="item.image || getOrderItemThumbnail(item)"
+                       :alt="item.product_title"
                        @error="handleImageError"
-                       class="w-16 h-16 object-cover rounded-lg flex-shrink-0"
+                       class="w-20 h-20 object-cover rounded-lg flex-shrink-0"
                      />
                      
                      <div class="flex-1">
-                       <h4 class="font-medium">{{ item.product_name }}</h4>
-                       <p class="text-sm text-gray-600">Quantity: {{ item.quantity }}</p>
-                       <p v-if="item.variant_name" class="text-xs text-gray-500">{{ item.variant_name }}</p>
+                       <h4 class="font-medium text-gray-900">{{ item.product_title }}</h4>
+                       <p class="text-sm text-gray-500">SKU: {{ item.product_sku }}</p>
+                       
+                       <div class="mt-2 flex flex-wrap gap-2">
+                         <span v-if="item.size" class="inline-flex items-center px-2 py-1 rounded bg-gray-100 text-xs text-gray-700">
+                           Size: {{ item.size }}
+                         </span>
+                         <span v-if="item.chosen_color" class="inline-flex items-center px-2 py-1 rounded bg-gray-100 text-xs text-gray-700">
+                           Color: {{ item.chosen_color.name }}
+                         </span>
+                         <span v-if="item.pieces_per_package" class="inline-flex items-center px-2 py-1 rounded bg-gray-100 text-xs text-gray-700">
+                           {{ item.pieces_per_package }} pcs/pkg
+                         </span>
+                       </div>
+                       
+                       <p class="text-sm text-gray-600 mt-2">Quantity: {{ item.quantity }}</p>
                      </div>
                      <div class="text-right">
-                       <p class="font-medium">{{ formatMoney(item.price * item.quantity) }}</p>
-                       <p class="text-sm text-gray-600">{{ formatMoney(item.price) }} each</p>
+                       <p class="font-medium">{{ formatMoney(item.total_price) }}</p>
+                       <p class="text-sm text-gray-500">{{ formatMoney(item.unit_price) }} each</p>
                      </div>
                    </div>
                 </div>
@@ -272,14 +285,16 @@ const getStatusClass = (status: string) => {
 };
 
 const getOrderItemThumbnail = (orderItem: any) => {
-  // First try to find the product by ID
+  if (orderItem.image) {
+    return orderItem.image;
+  }
+  
   const product = productsStore.products.find(p => p.id === orderItem.product_id);
   
   if (product) {
-    return resolveVariantThumbnail(product, undefined, orderItem.variant_id);
+    return resolveVariantThumbnail(product, undefined, undefined);
   }
   
-  // Fallback to placeholder if product not found
   return '/images/placeholder-product.svg';
 };
 
@@ -288,7 +303,7 @@ const getActiveTabLabel = () => {
   return tab ? tab.label : '';
 };
 
-const viewOrderDetails = (orderId: number) => {
+const viewOrderDetails = (orderId: number | string) => {
   // In a real app, this would navigate to order details page
   // For now, we'll just show an alert
   alert(`Order details for #${orderId}`);
@@ -297,11 +312,11 @@ const viewOrderDetails = (orderId: number) => {
 onMounted(async () => {
   await authStore.init();
    
-  if (authStore.isLoggedIn) {
+  if (authStore.isLoggedIn && authStore.user?.id) {
      await Promise.all([
-       ordersStore.fetchOrders(),
+       ordersStore.fetchOrdersByUser(authStore.user.id),
        productsStore.fetchProducts()
      ]);
    }
- });
+});
 </script>

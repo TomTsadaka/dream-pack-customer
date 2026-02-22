@@ -4,6 +4,7 @@ export const mockOrders: Order[] = [
   {
     id: 1001,
     user_id: 1,
+    order_number: 'ORD-TEST001',
     total: 159.97,
     status: 'delivered',
     shipping_address: {
@@ -15,28 +16,30 @@ export const mockOrders: Order[] = [
     },
     items: [
       {
+        id: 1,
         product_id: 1,
-        variant_id: 'bubble-wrap-red-small-6',
-        product_name: 'Wireless Bluetooth Headphones',
-        variant_name: 'Red Small (6 pack)',
+        product_title: 'Test Product 1',
+        product_sku: 'TP-001',
         quantity: 1,
-        price: 69.99
+        unit_price: 69.99,
+        total_price: 69.99,
+        size: 'Medium',
+        chosen_color: { name: 'Red', value: 'Red', slug: 'red' },
+        pieces_per_package: 6,
+        image: null
       },
       {
+        id: 2,
         product_id: 5,
-        variant_id: 'corrugated-boxes-brown-standard-25',
-        product_name: 'Stainless Steel Water Bottle',
-        variant_name: 'Brown Standard (25 pack)',
+        product_title: 'Test Product 2',
+        product_sku: 'TP-002',
         quantity: 2,
-        price: 32.99
-      },
-      {
-        product_id: 8,
-        variant_id: 'plastic-containers-gray-standard-50',
-        product_name: 'Ergonomic Office Chair',
-        variant_name: 'Gray Standard (50 pack)',
-        quantity: 1,
-        price: 24.99
+        unit_price: 32.99,
+        total_price: 65.98,
+        size: 'Large',
+        chosen_color: { name: 'Blue', value: 'Blue', slug: 'blue' },
+        pieces_per_package: 25,
+        image: null
       }
     ],
     created_at: '2024-01-15T10:30:00Z',
@@ -44,11 +47,12 @@ export const mockOrders: Order[] = [
   },
   {
     id: 1002,
-    user_id: 2,
+    user_id: 8,
+    order_number: 'ORD-TEST002',
     total: 89.98,
     status: 'shipped',
     shipping_address: {
-      name: 'Jane Smith',
+      name: 'Kim Test',
       phone: '+0987654321',
       address: '456 Oak Avenue',
       city: 'Los Angeles',
@@ -56,81 +60,20 @@ export const mockOrders: Order[] = [
     },
     items: [
       {
+        id: 3,
         product_id: 2,
-        variant_id: 'stretch-film-blue-medium-12',
-        product_name: 'Organic Cotton T-Shirt',
-        variant_name: 'Blue Medium (12 pack)',
+        product_title: 'Test Product 3',
+        product_sku: 'TP-003',
         quantity: 3,
-        price: 29.99
+        unit_price: 29.99,
+        total_price: 89.97,
+        size: 'Small',
+        chosen_color: null,
+        pieces_per_package: 12,
+        image: null
       }
     ],
     created_at: '2024-01-20T09:15:00Z',
     updated_at: '2024-01-21T16:45:00Z'
-  },
-  {
-    id: 1003,
-    user_id: 1,
-    total: 219.97,
-    status: 'processing',
-    shipping_address: {
-      name: 'John Doe',
-      phone: '+1234567890',
-      address: '123 Main Street, Apt 4B',
-      city: 'New York',
-      postal_code: '10001'
-    },
-    items: [
-      {
-        product_id: 4,
-        variant_id: 'foam-sheets-green-large-24',
-        product_name: 'Smartphone Case',
-        variant_name: 'Green Large (24 pack)',
-        quantity: 1,
-        price: 19.99
-      },
-      {
-        product_id: 7,
-        variant_id: 'folding-cartons-black-heavy-duty-50',
-        product_name: 'Wireless Mouse',
-        variant_name: 'Black Heavy Duty (50 pack)',
-        quantity: 2,
-        price: 39.99
-      },
-      {
-        product_id: 9,
-        variant_id: 'pet-bottles-clear-500ml-6',
-        product_name: 'USB-C Cable',
-        variant_name: 'Clear 500ml (6 pack)',
-        quantity: 3,
-        price: 14.99
-      }
-    ],
-    created_at: '2024-01-22T13:20:00Z',
-    updated_at: '2024-01-22T13:20:00Z'
-  },
-  {
-    id: 1004,
-    user_id: 3,
-    total: 149.95,
-    status: 'pending',
-    shipping_address: {
-      name: 'Mike Johnson',
-      phone: '+1122334455',
-      address: '789 Pine Street',
-      city: 'Chicago',
-      postal_code: '60601'
-    },
-    items: [
-      {
-        product_id: 6,
-        variant_id: 'mailer-boxes-kraft-standard-10',
-        product_name: 'Running Shoes',
-        variant_name: 'Kraft Standard (10 pack)',
-        quantity: 1,
-        price: 149.95
-      }
-    ],
-    created_at: '2024-01-23T11:45:00Z',
-    updated_at: '2024-01-23T11:45:00Z'
   }
 ];

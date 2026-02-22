@@ -35,6 +35,17 @@ export const useOrdersStore = defineStore('orders', {
       }
     },
 
+    async fetchOrdersByUser(userId: number) {
+      try {
+        this.loading = true;
+        this.orders = await orderService.getOrdersByUser(userId);
+      } catch (error) {
+        console.error('Failed to fetch user orders:', error);
+      } finally {
+        this.loading = false;
+      }
+    },
+
     async fetchOrder(id: number) {
       try {
         this.loading = true;

@@ -29,7 +29,7 @@ export const useCartStore = defineStore('cart', {
         const price = item.variant.salePrice || item.variant.price;
         return total + (price * item.quantity);
       }, 0);
-      return subtotal + 10; // $10 shipping
+      return subtotal;
     },
     
     getItemByVariantId: (state) => (productId: number, variantId: string) => {

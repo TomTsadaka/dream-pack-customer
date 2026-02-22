@@ -220,10 +220,8 @@ export const useProductsStore = defineStore('products', {
     async fetchFeaturedProducts() {
       try {
         this.loading = true;
-        const response = await productService.getFeaturedProducts();
-        
-        const payload = response?.data ?? response;
-        this.featuredProducts = Array.isArray(payload) ? payload : (payload?.products ?? []);
+        const products = await productService.getFeaturedProducts();
+        this.featuredProducts = products;
       } catch (error) {
         console.error('Failed to fetch featured products:', error);
       } finally {

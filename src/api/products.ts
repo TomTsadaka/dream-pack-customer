@@ -33,11 +33,12 @@ export async function fetchProducts(params: { page: number; limit: number; is_ac
   // Call real API - pass params in { params } object for axios
   const response = await api.get<any>('/api/products', { params });
   
-  // Defensively parse response - handle both wrapped and direct responses
+  // The API returns: { success: true, data: { products: [...], pagination: {...} } }
+  // Axios wraps this in response.data
   const apiData = response?.data ?? response;
   const payload = apiData?.data ?? apiData;
   
-  const products = payload?.products ?? [];
+  const products = Array.isArray(payload?.products) ? payload.products : [];
   const paginationRaw = payload?.pagination ?? {};
   
   return {
@@ -81,10 +82,9 @@ export async function fetchFeaturedProducts(): Promise<Product[]> {
   
   const response = await api.get<any>('/api/products/featured');
   
-  // Defensively parse response - handle wrapped { data: [...] } or direct [...]
   const payload = response?.data ?? response;
   if (Array.isArray(payload)) {
     return payload;
   }
-  return (payload as any)?.products ?? [];
+  return (payload as any)?.data?.products ?? (payload as any)?.products ?? [];
 }

@@ -2,6 +2,12 @@ export interface User {
   id: number;
   name: string;
   email: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  country?: string;
+  postal_code?: string;
+  role?: string;
   email_verified_at?: string;
   created_at: string;
   updated_at: string;
@@ -112,24 +118,37 @@ export interface CartItem {
 }
 
 export interface Order {
-  id: number;
+  id: number | string;
   user_id: number;
   total: number;
-  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'pending_payment';
+  order_number?: string;
   shipping_address: {
     name: string;
     phone: string;
     address: string;
     city: string;
     postal_code: string;
+    email?: string;
+    country?: string;
+    state?: string;
   };
   items: {
+    id: number;
     product_id: number;
-    variant_id: string;
-    product_name: string;
-    variant_name: string;
+    product_title: string;
+    product_sku: string;
     quantity: number;
-    price: number;
+    unit_price: number;
+    total_price: number;
+    size: string | null;
+    chosen_color: {
+      name: string;
+      value: string;
+      slug: string;
+    } | null;
+    pieces_per_package: number;
+    image: string | null;
   }[];
   created_at: string;
   updated_at: string;
