@@ -93,7 +93,7 @@
               
               <!-- Product Description -->
               <div class="mt-3 text-sm text-gray-600 leading-relaxed">
-                {{ product.baseDescription[settingsStore.locale] || product.baseDescription.en }}
+                {{ product.baseDescription?.[settingsStore.locale] || product.baseDescription?.en }}
               </div>
             </div>
 

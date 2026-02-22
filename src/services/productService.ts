@@ -34,8 +34,8 @@ export const productService = {
       if (params?.search) {
         filtered = filtered.filter(product => 
           product.name.toLowerCase().includes(params.search!.toLowerCase()) ||
-          product.baseDescription.en.toLowerCase().includes(params.search!.toLowerCase()) ||
-          product.baseDescription.he.toLowerCase().includes(params.search!.toLowerCase())
+product.baseDescription?.en.toLowerCase().includes(params.search!.toLowerCase()) ||
+          product.baseDescription?.he.toLowerCase().includes(params.search!.toLowerCase())
         );
       }
       

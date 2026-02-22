@@ -75,9 +75,9 @@ export const useProductsStore = defineStore('products', {
       
       if (state.filters.search) {
         filtered = filtered.filter(product => 
-          product.name.toLowerCase().includes(state.filters.search!.toLowerCase()) ||
-          product.baseDescription.en.toLowerCase().includes(state.filters.search!.toLowerCase()) ||
-          product.baseDescription.he.toLowerCase().includes(state.filters.search!.toLowerCase())
+product.name.toLowerCase().includes(state.filters.search!.toLowerCase()) ||
+          product.baseDescription?.en.toLowerCase().includes(state.filters.search!.toLowerCase()) ||
+          product.baseDescription?.he.toLowerCase().includes(state.filters.search!.toLowerCase())
         );
       }
       

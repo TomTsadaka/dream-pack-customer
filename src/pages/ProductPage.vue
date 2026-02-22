@@ -68,7 +68,7 @@
 
         <!-- Description -->
         <div class="mb-8">
-          <p class="text-gray-700">{{ productsStore.currentProduct.baseDescription[settingsStore.locale] || productsStore.currentProduct.baseDescription.en }}</p>
+          <p class="text-gray-700">{{ productsStore.currentProduct.baseDescription?.[settingsStore.locale] || productsStore.currentProduct.baseDescription?.en }}</p>
         </div>
 
         <!-- Price -->
