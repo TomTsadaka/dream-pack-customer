@@ -111,9 +111,9 @@ All Categories
         <div class="flex items-center justify-between">
           <div>
             <h3 class="font-semibold text-red-800">No products match current filters</h3>
-            <p class="text-red-600 text-sm mt-1">
+            <!-- <p class="text-red-600 text-sm mt-1">
               Mock mode: {{ isMockMode ? 'true' : 'false' }}
-            </p>
+            </p> -->
           </div>
           <button
             @click="resetAllFilters"

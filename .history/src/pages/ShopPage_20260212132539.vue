@@ -127,9 +127,9 @@ All Categories
       <!-- Alert Banner for No Products -->
       <div v-if="productsStore.products.length === 0" class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
         <h3 class="font-semibold text-red-800">No products returned</h3>
-        <p class="text-red-600 text-sm mt-1">
+        <!-- <p class="text-red-600 text-sm mt-1">
           Mock mode: {{ isMockMode ? 'true' : 'false' }}
-        </p>
+        </p> -->
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
